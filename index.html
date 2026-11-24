@@ -1257,6 +1257,215 @@ kbd {
   }
 }
 
+
+/* ---------- CHAT DI CLASSE (SIDEBAR SINISTRA) ---------- */
+.chat-sidebar {
+  width: 310px;
+  height: calc(100vh - 48px);
+  max-height: 720px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 24px;
+  z-index: 85;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+  overflow: hidden;
+}
+
+@media (min-width: 1380px) {
+  .chat-sidebar {
+    right: calc(50% + 380px);
+    left: auto;
+  }
+}
+@media (min-width: 1100px) and (max-width: 1379px) {
+  .chat-sidebar {
+    left: 14px;
+    right: auto;
+  }
+}
+@media (max-width: 1099px) {
+  .chat-sidebar {
+    left: 12px;
+    top: 64px;
+    height: 75vh;
+    max-height: 580px;
+    width: 320px;
+    max-width: calc(100vw - 24px);
+    z-index: 9995;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.32);
+  }
+}
+
+.chat-sidebar.collapsed {
+  transform: translateX(-120%);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.chat-floating-toggle {
+  display: none;
+  position: fixed;
+  left: 14px;
+  bottom: 18px;
+  z-index: 9990;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(39, 72, 240, 0.35);
+  cursor: pointer;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.15s, background 0.15s;
+}
+.chat-floating-toggle:hover {
+  transform: translateY(-2px);
+}
+.chat-sidebar.collapsed ~ .chat-floating-toggle,
+.chat-floating-toggle.visible {
+  display: inline-flex;
+}
+
+.chat-badge {
+  background: #ff4757;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+}
+.chat-title {
+  font-weight: 750;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.chat-status {
+  font-size: 0.68rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.chat-online-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2ed573;
+  display: inline-block;
+}
+.chat-ctrl-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: bold;
+}
+.chat-ctrl-btn:hover {
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.chat-messages-container {
+  flex: 1;
+  padding: 12px 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg);
+}
+.chat-bubble {
+  max-width: 86%;
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+.chat-bubble.mine {
+  align-self: flex-end;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-bottom-right-radius: 4px;
+}
+.chat-bubble.other {
+  align-self: flex-start;
+  background: var(--surface);
+  color: var(--ink);
+  border-bottom-left-radius: 4px;
+  border: 1px solid var(--line);
+}
+.chat-bubble-author {
+  font-size: 0.68rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.chat-bubble.mine .chat-bubble-author {
+  color: rgba(255,255,255,0.85);
+  justify-content: flex-end;
+}
+.chat-bubble.other .chat-bubble-author {
+  color: var(--muted);
+}
+.chat-bubble-time {
+  font-size: 0.62rem;
+  font-weight: normal;
+  opacity: 0.75;
+}
+.chat-admin-tag {
+  background: #eb5e28;
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
+.chat-footer {
+  padding: 10px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+.chat-send-btn {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: var(--r-md);
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.chat-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* 2. BANNER VERTICALE SULLA DESTRA DEL SITO */
 .ad-banner-vertical {
   width: 270px;
@@ -2054,8 +2263,46 @@ kbd {
   </div>
 </div>
 
+
+<!-- CHAT DI CLASSE LATERALE (SINISTRA) -->
+<aside class="chat-sidebar" id="chatSidebar" aria-label="Chat di Classe">
+  <div class="chat-header">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="font-size: 1.15rem;">💬</span>
+      <div>
+        <div class="chat-title">Chat di Classe</div>
+        <div class="chat-status"><span class="chat-online-dot"></span> In tempo reale</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:4px;">
+      <button class="chat-ctrl-btn" onclick="toggleChatCollapse()" title="Nascondi Chat">‹ Nascondi</button>
+    </div>
+  </div>
+
+  <div class="chat-messages-container" id="chatMessagesContainer">
+    <div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;" id="chatLoadingState">
+      Caricamento messaggi...
+    </div>
+  </div>
+
+  <div class="chat-footer" id="chatFooter">
+    <div id="chatAuthPrompt" style="display:none; text-align:center; padding:8px; font-size:0.78rem; color:var(--muted); background:var(--surface-2); border-radius:var(--r-sm); margin-bottom:6px;">
+      <button class="btn-sm" onclick="openAuthModal()" style="font-size:0.75rem; padding:3px 10px; margin-bottom:4px; font-weight:700;">👤 Accedi per scrivere</button>
+    </div>
+    <form id="chatForm" onsubmit="handleSendChatMessage(event)" style="display:flex; gap:6px; align-items:center;">
+      <input type="text" id="chatInputMessage" placeholder="Scrivi un messaggio alla classe..." maxlength="400" autocomplete="off" style="flex:1; padding:9px 12px; font-size:0.84rem; border-radius:var(--r-md); border:1px solid var(--line); background:var(--surface); color:var(--ink);">
+      <button type="submit" id="chatSendBtn" class="chat-send-btn" title="Invia">➤</button>
+    </form>
+  </div>
+</aside>
+
+<!-- BOTTONE FLOTTANTE PER RIAPRIRE LA CHAT -->
+<button class="chat-floating-toggle" id="chatFloatingToggle" onclick="toggleChatCollapse()" title="Apri Chat di Classe">
+  💬 Chat <span class="chat-badge" id="chatUnreadBadge" style="display:none;">0</span>
+</button>
+
 <!-- BANNER VERTICALE SULLA DESTRA DEL SITO -->
-<aside class="ad-banner-vertical" id="adBannerVertical" aria-label="Sponsor AVES Verticale">
+<aside class="ad-banner-vertical" id="adBannerVertical" aria-label="Sponsor Verticale">
   <div class="ad-v-header">
     <div style="display:flex; align-items:center; gap:6px;">
       <span class="ad-badge" id="adVBadge">IDRATAZIONE TATTICA</span>
@@ -2070,7 +2317,7 @@ kbd {
 
   <div class="ad-v-media-container" id="adVMediaContainer">
     <video id="adVideoPlayer" src="media/video_6953.mp4" poster="" playsinline muted loop autoplay preload="auto"></video>
-    <img id="adVImg" src="" alt="Sponsor AVES" style="display:none;">
+    <img id="adVImg" src="" alt="Sponsor" style="display:none;">
     
     <div class="ad-audio-control-overlay" id="adAudioOverlay">
       <button class="ad-play-pause-btn" id="adPlayPauseBtn" onclick="toggleAdPlayPause(event)" title="Play / Pausa">⏸</button>
@@ -2843,6 +3090,7 @@ function pickOptionByIndex(idx) {
 // --- INIZIALIZZAZIONE ---
 function init() {
   initSupabase();
+  initClassChat();
   requestPersistentStorage();
   checkUrlForSyncData();
   sanitizeHistoryAndStats();
@@ -4036,6 +4284,211 @@ if (document.readyState === 'loading') {
 // ==========================================================================
 
 
+
+// ==========================================================================
+// CHAT DI CLASSE IN TEMPO REALE (SUPABASE REALTIME)
+// ==========================================================================
+let chatChannel = null;
+let chatUnreadCount = 0;
+let isChatCollapsed = false;
+
+function initClassChat() {
+  const savedCollapsed = localStorage.getItem('aves_chat_collapsed');
+  if (savedCollapsed === 'true') {
+    isChatCollapsed = true;
+    document.getElementById('chatSidebar')?.classList.add('collapsed');
+    document.getElementById('chatFloatingToggle')?.classList.add('visible');
+  }
+
+  updateChatAuthUI();
+
+  if (sbClient) {
+    loadRecentChatMessages();
+    setupChatRealtimeSubscription();
+  }
+}
+
+function updateChatAuthUI() {
+  const promptEl = document.getElementById('chatAuthPrompt');
+  const inputEl = document.getElementById('chatInputMessage');
+  const btnEl = document.getElementById('chatSendBtn');
+
+  if (currentUser) {
+    if (promptEl) promptEl.style.display = 'none';
+    if (inputEl) {
+      inputEl.disabled = false;
+      inputEl.placeholder = 'Scrivi un messaggio alla classe...';
+    }
+    if (btnEl) btnEl.disabled = false;
+  } else {
+    if (promptEl) promptEl.style.display = 'block';
+    if (inputEl) {
+      inputEl.disabled = true;
+      inputEl.placeholder = 'Accedi per poter inviare messaggi';
+    }
+    if (btnEl) btnEl.disabled = true;
+  }
+}
+
+function toggleChatCollapse() {
+  const sidebar = document.getElementById('chatSidebar');
+  const toggleBtn = document.getElementById('chatFloatingToggle');
+  if (!sidebar) return;
+
+  isChatCollapsed = !isChatCollapsed;
+  if (isChatCollapsed) {
+    sidebar.classList.add('collapsed');
+    toggleBtn?.classList.add('visible');
+    localStorage.setItem('aves_chat_collapsed', 'true');
+  } else {
+    sidebar.classList.remove('collapsed');
+    toggleBtn?.classList.remove('visible');
+    localStorage.setItem('aves_chat_collapsed', 'false');
+    // Resetta contatore non letti
+    chatUnreadCount = 0;
+    const badge = document.getElementById('chatUnreadBadge');
+    if (badge) badge.style.display = 'none';
+    // Scroll in fondo
+    const container = document.getElementById('chatMessagesContainer');
+    if (container) container.scrollTop = container.scrollHeight;
+  }
+}
+
+async function loadRecentChatMessages() {
+  if (!sbClient) return;
+
+  try {
+    const { data: messages, error } = await sbClient
+      .from('chat_messages')
+      .select('*')
+      .order('created_at', { ascending: true })
+      .limit(60);
+
+    const container = document.getElementById('chatMessagesContainer');
+    if (!container) return;
+
+    if (error) {
+      console.warn('Errore lettura chat_messages:', error);
+      container.innerHTML = `<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">Chat disponibile. Crea la tabella su Supabase per abilitare i messaggi.</div>`;
+      return;
+    }
+
+    container.innerHTML = '';
+    if (!messages || messages.length === 0) {
+      container.innerHTML = `<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">Nessun messaggio. Sii il primo a scrivere alla classe! 👋</div>`;
+      return;
+    }
+
+    messages.forEach(msg => {
+      appendChatMessageToUI(msg, false);
+    });
+
+    container.scrollTop = container.scrollHeight;
+  } catch (err) {
+    console.error('Errore caricamento messaggi chat:', err);
+  }
+}
+
+function appendChatMessageToUI(msg, scroll = true) {
+  const container = document.getElementById('chatMessagesContainer');
+  if (!container) return;
+
+  // Se c'era il placeholder, rimuovilo
+  if (container.querySelector('#chatLoadingState') || container.children.length === 1 && container.children[0].textContent.includes('Nessun messaggio')) {
+    container.innerHTML = '';
+  }
+
+  const isMine = currentUser && (msg.user_id === currentUser.id || msg.user_name === (currentProfile?.full_name || currentUser.email));
+  const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '';
+
+  const bubble = document.createElement('div');
+  bubble.className = `chat-bubble ${isMine ? 'mine' : 'other'}`;
+
+  const adminBadge = (msg.user_role === 'admin' || (msg.user_name && msg.user_name.toLowerCase().includes('danilo'))) 
+    ? `<span class="chat-admin-tag">ADMIN</span>` 
+    : '';
+
+  bubble.innerHTML = `
+    <div class="chat-bubble-author">
+      ${escapeHtml(msg.user_name || 'Allievo')} ${adminBadge}
+      <span class="chat-bubble-time">${timeStr}</span>
+    </div>
+    <div style="font-size:0.83rem;">${escapeHtml(msg.message || '')}</div>
+  `;
+
+  container.appendChild(bubble);
+
+  if (scroll) {
+    container.scrollTop = container.scrollHeight;
+  }
+}
+
+function setupChatRealtimeSubscription() {
+  if (!sbClient) return;
+
+  try {
+    chatChannel = sbClient.channel('public:chat_messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
+        if (payload && payload.new) {
+          appendChatMessageToUI(payload.new, true);
+          if (isChatCollapsed) {
+            chatUnreadCount++;
+            const badge = document.getElementById('chatUnreadBadge');
+            if (badge) {
+              badge.textContent = chatUnreadCount;
+              badge.style.display = 'inline-block';
+            }
+          }
+        }
+      })
+      .subscribe();
+  } catch (err) {
+    console.warn('Errore sottoscrizione realtime chat:', err);
+  }
+}
+
+async function handleSendChatMessage(event) {
+  if (event) event.preventDefault();
+
+  if (!currentUser || !sbClient) {
+    openAuthModal();
+    return;
+  }
+
+  const input = document.getElementById('chatInputMessage');
+  const text = (input?.value || '').trim();
+  if (!text) return;
+
+  const btn = document.getElementById('chatSendBtn');
+  if (btn) btn.disabled = true;
+
+  try {
+    const authorName = currentProfile?.full_name || currentUser.email.split('@')[0];
+    const isDaniloAdmin = !!(currentUser.email && currentUser.email.toLowerCase() === 'giacobbe.danilo@gmail.com');
+    const authorRole = (isDaniloAdmin || currentProfile?.role === 'admin') ? 'admin' : 'student';
+
+    const { error } = await sbClient.from('chat_messages').insert({
+      user_id: currentUser.id,
+      user_name: authorName,
+      user_role: authorRole,
+      message: text
+    });
+
+    if (error) {
+      console.error('Errore invio messaggio:', error);
+      showAppDialog({ title: 'Errore Chat', message: 'Impossibile inviare il messaggio: ' + error.message, type: 'error' });
+    } else {
+      if (input) input.value = '';
+    }
+  } catch (err) {
+    showAppDialog({ title: 'Errore', message: err.message, type: 'error' });
+  } finally {
+    if (btn) btn.disabled = false;
+    input?.focus();
+  }
+}
+
+
 // ==========================================================================
 // GESTIONE DIALOGHI E NOTIFICHE IN-APP (SOSTITUZIONE POPUP DI SISTEMA)
 // ==========================================================================
@@ -4186,6 +4639,7 @@ function initSupabase() {
         } else {
           showAdminTab(false);
           updateAuthUI();
+  updateChatAuthUI();
         }
       }).catch(err => {
         console.warn('Supabase getSession warning:', err);
