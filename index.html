@@ -3915,7 +3915,7 @@ if (document.readyState === 'loading') {
 // ==========================================================================
 let appDialogCallback = null;
 
-function showAppDialog({ title = "Notifica AVES", message = "", type = "info", icon = null, confirmText = "OK", cancelText = null, onConfirm = null }) {
+function showAppDialog({ title = "Notifica", message = "", type = "info", icon = null, confirmText = "OK", cancelText = null, onConfirm = null }) {
   const overlay = document.getElementById("appDialogOverlay");
   if (!overlay) return;
 
@@ -3927,8 +3927,22 @@ function showAppDialog({ title = "Notifica AVES", message = "", type = "info", i
 
   appDialogCallback = onConfirm;
 
-  if (titleEl) titleEl.textContent = title;
-  if (msgEl) msgEl.textContent = message;
+  if (titleEl) {
+    if (title && String(title).trim()) {
+      titleEl.style.display = "block";
+      titleEl.textContent = title;
+    } else {
+      titleEl.style.display = "none";
+    }
+  }
+  if (msgEl) {
+    if (message && String(message).trim()) {
+      msgEl.style.display = "block";
+      msgEl.textContent = message;
+    } else {
+      msgEl.style.display = "none";
+    }
+  }
 
   if (iconEl) {
     if (icon) {
@@ -3983,20 +3997,29 @@ function closeAppDialog(event) {
 
 // Sostituisce i popup nativi "alert" del browser con i modali in-app dell'applicazione
 window.alert = function(msg) {
-  let title = "Notifica AVES";
+  let title = "Notifica";
+  let message = String(msg || "");
   let type = "info";
-  const s = String(msg || "");
-  if (s.includes("✓") || s.includes("successo") || s.includes("salvato") || s.includes("aggiornati")) {
+  let icon = "✈️";
+
+  if (message.includes("Disconnessione")) {
+    title = "Disconnessione effettuata.";
+    message = "";
+    icon = "✈️";
+  } else if (message.includes("✓") || message.includes("successo") || message.includes("salvato") || message.includes("aggiornati")) {
     title = "Operazione Riuscita";
     type = "success";
-  } else if (s.includes("⚠️") || s.includes("Errore") || s.includes("Impossibile") || s.includes("fallita")) {
+    icon = "✅";
+  } else if (message.includes("⚠️") || message.includes("Errore") || message.includes("Impossibile") || message.includes("fallita")) {
     title = "Attenzione";
     type = "error";
-  } else if (s.includes("💡") || s.includes("Nota")) {
+    icon = "⚠️";
+  } else if (message.includes("💡") || message.includes("Nota")) {
     title = "Promemoria";
     type = "info";
+    icon = "💡";
   }
-  showAppDialog({ title, message: s, type });
+  showAppDialog({ title, message, type, icon });
 };
 
 
@@ -4160,7 +4183,7 @@ function openAuthModal() {
     const isAdmin = !!(currentProfile && currentProfile.role === 'admin');
 
     if (pRole) {
-      pRole.textContent = isAdmin ? '👨‍✈️ Istruttore / Admin' : 'Corsista AVES';
+      pRole.textContent = isAdmin ? '👨‍✈️ Istruttore / Admin' : 'Corsista';
       pRole.style.background = isAdmin ? 'rgba(235, 94, 40, 0.15)' : 'var(--ok-soft)';
       pRole.style.color = isAdmin ? '#eb5e28' : 'var(--ok)';
     }
@@ -4349,7 +4372,7 @@ async function syncSessionToSupabase(sessionStats, qStats) {
   if (!sbClient) return;
   if (!currentUser) {
     console.log('[AVES Cloud] Utente non autenticato: salvataggio eseguito solo in locale.');
-    alert('💡 Nota: non eri connesso con il tuo account.\n\nIl quiz è stato salvato in locale sul tuo browser. Per salvarlo sul cloud del corso AVES, clicca su "Accedi" in alto!');
+    alert('💡 Nota: non eri connesso con il tuo account.\n\nIl quiz è stato salvato in locale sul tuo browser. Per salvarlo sul cloud del corso, clicca su "Accedi" in alto!');
     return;
   }
 
@@ -4883,7 +4906,7 @@ function exportClassResultsCSV() {
   const link = document.createElement('a');
   const now = new Date().toISOString().slice(0, 10);
   link.setAttribute('href', url);
-  link.setAttribute('download', `Report_Corso_AVES_Quiz_${now}.csv`);
+  link.setAttribute('download', `Report_Quiz_CTP_${now}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -5333,7 +5356,7 @@ function checkUrlForSyncData() {
   <div class="sync-modal-card" onclick="event.stopPropagation()" style="max-width: 440px; text-align: center; padding: 26px 22px;">
     <div id="appDialogIcon" style="font-size: 2.5rem; margin-bottom: 12px; line-height: 1;">☁️</div>
     <div class="sync-modal-title" id="appDialogTitle" style="font-size: 1.15rem; font-weight: 750; margin-bottom: 10px; color: var(--ink);">
-      Notifica AVES
+      Notifica
     </div>
     <div id="appDialogMessage" style="font-size: 0.88rem; line-height: 1.55; color: var(--muted); margin-bottom: 22px; white-space: pre-line;">
       Messaggio
