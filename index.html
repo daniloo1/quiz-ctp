@@ -3915,7 +3915,7 @@ if (document.readyState === 'loading') {
 // ==========================================================================
 let appDialogCallback = null;
 
-function showAppDialog({ title = "Notifica AVES", message = "", type = "info", confirmText = "OK", cancelText = null, onConfirm = null }) {
+function showAppDialog({ title = "Notifica AVES", message = "", type = "info", icon = null, confirmText = "OK", cancelText = null, onConfirm = null }) {
   const overlay = document.getElementById("appDialogOverlay");
   if (!overlay) return;
 
@@ -3931,8 +3931,11 @@ function showAppDialog({ title = "Notifica AVES", message = "", type = "info", c
   if (msgEl) msgEl.textContent = message;
 
   if (iconEl) {
-    if (type === "success" || message.includes("✓") || message.includes("successo") || message.includes("salvato")) {
-      iconEl.textContent = "☁️";
+    if (icon) {
+      iconEl.textContent = icon;
+      iconEl.style.color = (icon === "✅" || icon === "✓") ? "var(--ok)" : "";
+    } else if (type === "success" || message.includes("✓") || message.includes("successo") || message.includes("salvato")) {
+      iconEl.textContent = "✅";
       iconEl.style.color = "var(--ok)";
     } else if (type === "error" || message.includes("⚠️") || message.includes("Errore") || message.includes("Impossibile")) {
       iconEl.textContent = "⚠️";
@@ -4377,9 +4380,18 @@ async function syncSessionToSupabase(sessionStats, qStats) {
 
     if (sErr) {
       console.error('[AVES Cloud] Errore inserimento quiz_sessions:', sErr);
-      alert('⚠️ Errore salvataggio quiz su database Supabase: ' + sErr.message + ' (Codice: ' + sErr.code + ')');
+      showAppDialog({
+        title: 'Attenzione',
+        message: '⚠️ Errore salvataggio quiz su database Supabase: ' + sErr.message + ' (Codice: ' + sErr.code + ')',
+        type: 'error'
+      });
     } else {
-      alert('☁️ Quiz salvato con successo nel database centrale Supabase!');
+      showAppDialog({
+        title: 'Operazione Riuscita',
+        message: '☁️ Quiz e statistiche aggiornate con successo!',
+        icon: '✅',
+        type: 'success'
+      });
       console.log('[AVES Cloud] Sessione quiz sincronizzata con successo su Supabase!');
     }
 
@@ -4495,9 +4507,12 @@ async function syncLocalHistoryToCloud() {
       }
     }
 
-    alert(`✓ Sincronizzazione completata con successo!
-
-${uploadedSessions} sessioni e ${qRows.length} statistiche caricate sul database centrale.`);
+    showAppDialog({
+      title: 'Operazione Riuscita',
+      message: '☁️ Quiz e statistiche aggiornate con successo!\n\n(' + uploadedSessions + ' sessioni e ' + qRows.length + ' statistiche sincronizzate)',
+      icon: '✅',
+      type: 'success'
+    });
   } catch (err) {
     alert('Errore durante la sincronizzazione: ' + err.message);
   } finally {
