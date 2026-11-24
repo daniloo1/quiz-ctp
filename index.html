@@ -4235,13 +4235,27 @@ async function handleSupabaseLogout() {
 
 // Sincronizzazione automatica al completamento del quiz
 async function syncSessionToSupabase(sessionStats, qStats) {
-  if (!sbClient || !currentUser) return;
+  if (!sbClient) return;
+  if (!currentUser) {
+    console.log('[AVES Cloud] Utente non autenticato: salvataggio eseguito solo in locale.');
+    return;
+  }
 
   try {
     const studentName = currentProfile?.full_name || currentUser.user_metadata?.full_name || currentUser.email.split('@')[0];
     
+    // Assicura che esista il profilo per soddisfare il vincolo foreign key
+    try {
+      await sbClient.from('profiles').upsert({
+        id: currentUser.id,
+        email: currentUser.email,
+        full_name: studentName,
+        role: currentProfile?.role || 'student'
+      });
+    } catch (e) {}
+
     // Inserisce la sessione
-    await sbClient.from('quiz_sessions').insert({
+    const { data: sData, error: sErr } = await sbClient.from('quiz_sessions').insert({
       user_id: currentUser.id,
       user_name: studentName,
       score_pct: sessionStats.scorePct,
@@ -4251,6 +4265,12 @@ async function syncSessionToSupabase(sessionStats, qStats) {
       duration_sec: sessionStats.durationSec || 0,
       subject_stats: sessionStats.subjectStats || {}
     });
+
+    if (sErr) {
+      console.error('[AVES Cloud] Errore inserimento quiz_sessions:', sErr);
+    } else {
+      console.log('[AVES Cloud] Sessione quiz sincronizzata con successo su Supabase!');
+    }
 
     // Inserisce/aggiorna le domande affrontate
     const rows = [];
@@ -4273,10 +4293,13 @@ async function syncSessionToSupabase(sessionStats, qStats) {
     }
 
     if (rows.length > 0) {
-      await sbClient.from('user_question_stats').upsert(rows);
+      const { error: qErr } = await sbClient.from('user_question_stats').upsert(rows);
+      if (qErr) {
+        console.error('[AVES Cloud] Errore user_question_stats:', qErr);
+      }
     }
   } catch (err) {
-    console.warn('Errore sincronizzazione quiz su cloud:', err);
+    console.error('[AVES Cloud] Eccezione sincronizzazione cloud:', err);
   }
 }
 
@@ -4385,6 +4408,14 @@ async function loadAdminDashboardData() {
       sbClient.from('quiz_sessions').select('*').order('created_at', { ascending: false }),
       sbClient.from('user_question_stats').select('*')
     ]);
+
+    if (pRes.error || sRes.error || qRes.error) {
+      console.error('[AVES Admin] Errore recupero dati Supabase:', { profiles: pRes.error, sessions: sRes.error, stats: qRes.error });
+      const errDetails = [pRes.error?.message, sRes.error?.message, qRes.error?.message].filter(Boolean).join(' | ');
+      if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--bad); font-weight:600;">⚠️ Errore permessi Supabase: ${escapeHtml(errDetails)}<br><span style="font-size:0.75rem; color:var(--muted); font-weight:normal;">Verifica le policy RLS o esegui lo script SQL di aggiornamento.</span></td></tr>`;
+      }
+    }
 
     adminProfilesCache = pRes.data || [];
     adminSessionsCache = sRes.data || [];
