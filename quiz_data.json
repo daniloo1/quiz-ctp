@@ -1800,14 +1800,14 @@
   {
     "id": 151,
     "materia": "SICUREZZA VOLO (FATTORE UMANO)",
-    "domanda": "Quali sono i quattro pilastri fondamentali di un Safety Management System (SMS)?",
+    "domanda": "Quali sono i pilastri del FSMS?",
     "opzioni": [
-      "Safety Policy, Safety Risk Management, Safety Assurance e Safety Promotion",
-      "Safety Policy, Hazard Identification, Legal Defense e Operational Planning",
-      "Safety Rules, Risk Assessment, Incident Investigation e Crew Debriefing",
-      "Safety Doctrine, Risk Mitigation, Quality Control e Technical Auditing"
+      "Safety Policy, Safety Risk Management, Safety Assurance, Safety Promotion, Accident Investigation e Post Accident Management",
+      "Safety Policy, Hazard Identification, Legal Defense, Operational Planning e Crisis Management",
+      "Safety Rules, Risk Assessment, Incident Investigation, Technical Auditing e Crew Debriefing",
+      "Safety Doctrine, Risk Mitigation, Quality Control, Airworthiness Monitoring e Post Flight Debrief"
     ],
-    "corretta": "Safety Policy, Safety Risk Management, Safety Assurance e Safety Promotion"
+    "corretta": "Safety Policy, Safety Risk Management, Safety Assurance, Safety Promotion, Accident Investigation e Post Accident Management"
   },
   {
     "id": 152,
@@ -3356,5 +3356,17 @@
       "Non sono necessari fasci multipli in trasmissione ma un solo fascio omnidirezionale, poiché la discriminazione dell'altezza avviene per effetto Doppler sui bersagli mobili"
     ],
     "corretta": "Si ha bisogno di più fasci (pencil beam) distribuiti su diversi settori in elevazione tramite scansione verticale elettronica, poiché ciascun fascio a matita è stretto sia in azimut che in elevazione"
+  },
+  {
+    "id": 281,
+    "materia": "SICUREZZA VOLO (FATTORE UMANO)",
+    "domanda": "La cultura sicurezza volo è:",
+    "opzioni": [
+      "È innescata al vertice e misurata alla base",
+      "Imposta rigidamente per via gerarchica e quantificata esclusivamente dalle sanzioni disciplinari",
+      "Generata spontaneamente dal personale operativo e recepita solo successivamente dalla leadership",
+      "Definita unicamente dagli standard tecnici e misurata dall'indice di efficienza degli aeromobili"
+    ],
+    "corretta": "È innescata al vertice e misurata alla base"
   }
 ]

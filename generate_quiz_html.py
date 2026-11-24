@@ -11,7 +11,7 @@ with DATA_PATH.open(encoding="utf-8") as source:
     questions = json.load(source)
 
 html = HTML_PATH.read_text(encoding="utf-8")
-pattern = r"const rawQuestions = \[.*?\];(?=\s*const allSubjects)"
+pattern = r"const rawQuestions = \[.*?\];"
 replacement = "const rawQuestions = " + json.dumps(questions, ensure_ascii=False) + ";"
 updated_html, replacements = re.subn(pattern, lambda _: replacement, html, count=1, flags=re.DOTALL)
 
