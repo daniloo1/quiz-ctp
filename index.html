@@ -2445,6 +2445,7 @@ kbd {
       </div>
     </div>
     <div style="display:flex; align-items:center; gap:4px;">
+      <button class="chat-ctrl-btn" id="btnAdminClearChat" onclick="confirmClearClassChat()" title="Cancella cronologia messaggi (Riservato Admin)" style="display:none; color:#ff4757; border-color:rgba(255,71,87,0.3); font-size:0.75rem; padding:3px 6px;">🗑️ Svuota</button>
       <button class="chat-ctrl-btn" onclick="toggleChatCollapse()" title="Nascondi Chat">‹ Nascondi</button>
     </div>
   </div>
@@ -4479,6 +4480,14 @@ function updateChatAuthUI() {
   const noticeEl = document.getElementById('chatAuthBarNotice');
   const inputEl = document.getElementById('chatInputMessage');
   const btnEl = document.getElementById('chatSendBtn');
+  const clearBtn = document.getElementById('btnAdminClearChat');
+
+  const isDaniloAdmin = !!(currentUser?.email && currentUser.email.toLowerCase() === 'giacobbe.danilo@gmail.com');
+  const isAdmin = isDaniloAdmin || !!(currentProfile && String(currentProfile.role).toLowerCase() === 'admin');
+
+  if (clearBtn) {
+    clearBtn.style.display = (currentUser && isAdmin) ? 'inline-block' : 'none';
+  }
 
   if (currentUser) {
     // Utente autenticato: sblocca form, input e messaggi
@@ -4680,9 +4689,77 @@ function setupChatRealtimeSubscription() {
           }
         }
       })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages' }, payload => {
+        const container = document.getElementById('chatMessagesContainer');
+        if (payload && payload.old && payload.old.id) {
+          const el = document.getElementById('chatMsg_' + payload.old.id);
+          if (el) el.remove();
+        } else if (container) {
+          container.innerHTML = '<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">Cronologia messaggi eliminata dall\'amministratore. 👋</div>';
+        }
+      })
       .subscribe();
   } catch (err) {
     console.warn('Errore sottoscrizione realtime chat:', err);
+  }
+}
+
+async function confirmClearClassChat() {
+  const isDaniloAdmin = !!(currentUser?.email && currentUser.email.toLowerCase() === 'giacobbe.danilo@gmail.com');
+  const isAdmin = isDaniloAdmin || !!(currentProfile && String(currentProfile.role).toLowerCase() === 'admin');
+  if (!currentUser || !isAdmin) {
+    showAppDialog({ title: 'Accesso Negato', message: 'Questa azione è riservata all\'amministratore.', type: 'error' });
+    return;
+  }
+
+  showAppDialog({
+    title: 'Cancella Cronologia Chat',
+    message: 'Sei sicuro di voler eliminare TUTTI i messaggi della chat di classe?\n\nQuesta operazione cancellerà la cronologia per tutti gli allievi anche dal database.',
+    type: 'confirm',
+    icon: '🗑️',
+    confirmText: 'Sì, elimina tutto',
+    cancelText: 'Annulla',
+    onConfirm: async (confirmed) => {
+      if (confirmed) {
+        await clearClassChatMessages();
+      }
+    }
+  });
+}
+
+async function clearClassChatMessages() {
+  if (!sbClient) return;
+
+  const btn = document.getElementById('btnAdminClearChat');
+  if (btn) btn.disabled = true;
+
+  try {
+    const { error } = await sbClient
+      .from('chat_messages')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+
+    if (error) {
+      console.error('Errore cancellazione messaggi:', error);
+      showAppDialog({ title: 'Errore', message: 'Impossibile cancellare i messaggi: ' + error.message, type: 'error' });
+      return;
+    }
+
+    const container = document.getElementById('chatMessagesContainer');
+    if (container) {
+      container.innerHTML = '<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">Cronologia messaggi eliminata dall\'amministratore. 👋</div>';
+    }
+
+    showAppDialog({
+      title: 'Chat Svuotata',
+      message: 'La cronologia della chat è stata eliminata con successo.',
+      type: 'success',
+      icon: '✅'
+    });
+  } catch (err) {
+    showAppDialog({ title: 'Errore', message: err.message, type: 'error' });
+  } finally {
+    if (btn) btn.disabled = false;
   }
 }
 
@@ -4989,8 +5066,10 @@ function showAppDialog({ title = "Notifica", message = "", type = "info", icon =
   if (confirmBtn) {
     confirmBtn.textContent = confirmText;
     confirmBtn.onclick = function() {
+      const cb = appDialogCallback;
+      appDialogCallback = null;
       closeAppDialog();
-      if (typeof appDialogCallback === "function") appDialogCallback(true);
+      if (typeof cb === "function") cb(true);
     };
   }
 
@@ -4999,8 +5078,10 @@ function showAppDialog({ title = "Notifica", message = "", type = "info", icon =
       cancelBtn.style.display = "inline-block";
       cancelBtn.textContent = cancelText;
       cancelBtn.onclick = function() {
+        const cb = appDialogCallback;
+        appDialogCallback = null;
         closeAppDialog();
-        if (typeof appDialogCallback === "function") appDialogCallback(false);
+        if (typeof cb === "function") cb(false);
       };
     } else {
       cancelBtn.style.display = "none";
@@ -5016,6 +5097,11 @@ function closeAppDialog(event) {
   }
   const overlay = document.getElementById("appDialogOverlay");
   if (overlay) overlay.classList.remove("active");
+  if (typeof appDialogCallback === "function") {
+    const cb = appDialogCallback;
+    appDialogCallback = null;
+    cb(false);
+  }
 }
 
 // Sostituisce i popup nativi "alert" del browser con i modali in-app dell'applicazione
@@ -5228,19 +5314,26 @@ async function handleAuthUserChange(user) {
     updateChatAuthUI();
   }
 
-  // Se ci sono quiz svolti come ospite prima di accedere, chiedi se collegarli al profilo
+  // Se ci sono quiz svolti come ospite prima di accedere, chiedi se collegarli al profilo (solo se non rifiutato in precedenza)
   const guestHist = getGuestHistory();
-  if (guestHist.length > 0) {
+  const guestDeclined = localStorage.getItem('aves_guest_import_declined_' + user.id) === 'true';
+  const guestPromptShownThisSession = sessionStorage.getItem('aves_guest_prompt_shown') === 'true';
+
+  if (guestHist.length > 0 && !guestDeclined && !guestPromptShownThisSession) {
+    sessionStorage.setItem('aves_guest_prompt_shown', 'true');
     setTimeout(() => {
       showAppDialog({
         title: 'Quiz come Ospite Trovati',
-        message: 'Hai svolto ' + guestHist.length + ' quiz su questo dispositivo prima di accedere.\n\nVuoi collegarli e salvarli nel tuo nuovo account?',
+        message: 'Hai svolto ' + guestHist.length + ' quiz su questo dispositivo prima di accedere.\n\nVuoi collegarli e salvarli nel tuo account?',
         icon: '📥',
         confirmText: 'Sì, collega ora',
-        cancelText: 'No, ignora',
+        cancelText: 'No',
         onConfirm: (yes) => {
           if (yes) {
             importGuestDataToAccount();
+          } else {
+            // Se l'utente seleziona "No", memorizza la scelta e non mostrare MAI più il popup
+            localStorage.setItem('aves_guest_import_declined_' + user.id, 'true');
           }
         }
       });
