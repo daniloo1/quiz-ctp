@@ -4698,7 +4698,7 @@ function renderAdminClassErrors(stats) {
     const qObj = rawQuestions.find(q => q.id === item.question_id);
     const qText = qObj ? qObj.domanda : `Domanda ID #${item.question_id}`;
     const qSubject = qObj ? qObj.materia : 'Generale';
-    const correctOpt = qObj ? qObj.opzioni[qObj.corretta] : 'N/D';
+    const correctOpt = qObj ? (typeof qObj.corretta === 'number' ? qObj.opzioni[qObj.corretta] : qObj.corretta) : 'N/D';
 
     html += `
       <div style="background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 14px;">
@@ -4715,8 +4715,9 @@ function renderAdminClassErrors(stats) {
         <div style="font-size: 0.86rem; font-weight: 600; color: var(--ink); margin-bottom: 8px; line-height: 1.4;">
           ${escapeHtml(qText)}
         </div>
-        <div style="font-size: 0.78rem; color: var(--ok); background: var(--surface); padding: 6px 10px; border-radius: var(--r-sm); border: 1px solid var(--line);">
-          <strong>Risposta Esatta:</strong> ${escapeHtml(correctOpt)}
+        <div style="font-size: 0.82rem; color: var(--ok); background: var(--ok-soft); padding: 8px 12px; border-radius: var(--r-sm); border: 1px solid rgba(15, 157, 104, 0.25); display: flex; align-items: flex-start; gap: 6px;">
+          <span style="font-weight: 800;">✓ Risposta Esatta:</span>
+          <span>${escapeHtml(correctOpt)}</span>
         </div>
       </div>
     `;
