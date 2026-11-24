@@ -2418,6 +2418,535 @@ kbd {
   line-height: 1.4;
 }
 
+
+    /* =========================================================
+       OVERLAY RANSOMWARE WANNACRY (Wana Decrypt0r 2.0)
+       ========================================================= */
+    #ransomwareRoot {
+      display: none;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 999999999;
+      background: #000;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* FASE 1: SCHERMO DI CIFRATURA GLITCH */
+    #infectionScreen {
+      position: absolute;
+      inset: 0;
+      background: #050505;
+      color: #22c55e;
+      font-family: "Courier New", Courier, monospace;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .wc-scanlines {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+      background-size: 100% 4px;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .wc-terminal-box {
+      max-width: 700px;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #16a34a;
+      border-radius: 6px;
+      padding: 24px;
+      box-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+      position: relative;
+    }
+
+    .wc-terminal-title {
+      color: #ef4444;
+      font-weight: bold;
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      animation: wcBlink 0.8s infinite alternate;
+    }
+
+    @keyframes wcBlink {
+      0% { opacity: 0.7; }
+      100% { opacity: 1; text-shadow: 0 0 10px #ef4444; }
+    }
+
+    .wc-terminal-log {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 20px;
+      min-height: 140px;
+    }
+
+    .wc-terminal-log .err { color: #f87171; font-weight: bold; }
+    .wc-terminal-log .ok { color: #4ade80; }
+    .wc-terminal-log .warn { color: #facc15; }
+
+    .wc-progress-bar-container {
+      width: 100%;
+      height: 20px;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .wc-progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #dc2626, #ef4444);
+      box-shadow: 0 0 10px #ef4444;
+      transition: width 0.08s linear;
+    }
+
+    /* FASE 2: WANA DECRYPT0R 2.0 FINESTRA PRINCIPALE */
+    #wannacryWindow {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 900px;
+      max-width: 96vw;
+      max-height: 94vh;
+      max-height: 94dvh;
+      background: #ece9d8;
+      border: 3px solid #7a1818;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      color: #000;
+      flex-direction: column;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    /* Header WannaCry */
+    .wc-titlebar {
+      background: linear-gradient(180deg, #8b1010 0%, #680b0b 100%);
+      color: #fff;
+      padding: 6px 12px;
+      font-weight: bold;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #4a0606;
+    }
+
+    .wc-titlebar-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wc-window-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .wc-win-btn {
+      width: 20px;
+      height: 20px;
+      background: #d4d0c8;
+      border: 1px solid #808080;
+      border-radius: 2px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wc-win-btn:active {
+      border-style: inset;
+    }
+
+    /* Layout a due colonne */
+    .wc-body {
+      display: flex;
+      padding: 12px;
+      gap: 12px;
+      background: #7a1818;
+      overflow-y: auto;
+    }
+
+    /* Colonna Sinistra (Timer & Lucchetto) */
+    .wc-col-left {
+      width: 250px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .wc-lock-card {
+      background: #fff;
+      border: 2px solid #555;
+      padding: 14px;
+      text-align: center;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .wc-lock-icon {
+      font-size: 70px;
+      line-height: 1;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .wc-timer-card {
+      background: #fff;
+      border: 2px solid #555;
+      padding: 10px;
+      border-radius: 3px;
+    }
+
+    .wc-timer-label {
+      font-size: 12px;
+      font-weight: bold;
+      color: #7a1818;
+      margin-bottom: 4px;
+    }
+
+    .wc-timer-date {
+      font-size: 11px;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    .wc-timer-digits {
+      background: #000;
+      color: #facc15;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      padding: 6px 0;
+      border-radius: 2px;
+      letter-spacing: 2px;
+      box-shadow: inset 0 0 6px rgba(255, 255, 0, 0.4);
+    }
+
+    /* Colonna Destra (Testo, Bitcoin, Bottoni) */
+    .wc-col-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .wc-top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 6px 12px;
+      border: 1px solid #999;
+      border-radius: 2px;
+    }
+
+    .wc-top-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #7a1818;
+    }
+
+    .wc-text-area {
+      background: #fff;
+      border: 1px solid #999;
+      height: 220px;
+      overflow-y: scroll;
+      padding: 12px 14px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #111;
+      border-radius: 2px;
+    }
+
+    .wc-text-area h3 {
+      font-size: 13.5px;
+      color: #7a1818;
+      margin: 10px 0 4px 0;
+    }
+
+    .wc-text-area h3:first-child {
+      margin-top: 0;
+    }
+
+    /* Sezione Pagamento Bitcoin */
+    .wc-payment-box {
+      background: #fff;
+      border: 1px solid #999;
+      padding: 10px 12px;
+      border-radius: 2px;
+    }
+
+    .wc-btc-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .wc-btc-logo {
+      font-size: 28px;
+      color: #f7931a;
+      font-weight: bold;
+    }
+
+    .wc-btc-instructions {
+      font-size: 12px;
+      color: #222;
+      font-weight: bold;
+    }
+
+    .wc-address-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .wc-address-input {
+      flex: 1;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 13px;
+      padding: 6px 10px;
+      border: 1px solid #666;
+      background: #f8f8f8;
+      font-weight: bold;
+      color: #000;
+    }
+
+    .wc-btn-copy {
+      background: #ece9d8;
+      border: 2px outset #fff;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .wc-btn-copy:active {
+      border-style: inset;
+    }
+
+    /* Pulsanti Azione */
+    .wc-bottom-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .wc-action-btn {
+      background: linear-gradient(180deg, #f4f2e8 0%, #dfdbcb 100%);
+      border: 2px outset #ffffff;
+      padding: 8px 24px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #111;
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .wc-action-btn:hover {
+      background: #ece7d5;
+    }
+
+    .wc-action-btn:active {
+      border-style: inset;
+    }
+
+    /* MODALE RETRO DI WINDOWS */
+    #winDialog {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 420px;
+      max-width: 90vw;
+      background: #ece9d8;
+      border: 2px solid #0055ea;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+      font-family: Tahoma, Arial, sans-serif;
+      z-index: 20;
+    }
+
+    .win-dialog-header {
+      background: linear-gradient(90deg, #0055ea, #3a93ff);
+      color: white;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .win-dialog-body {
+      padding: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      font-size: 12px;
+      color: #000;
+      line-height: 1.4;
+    }
+
+    .win-dialog-icon {
+      font-size: 32px;
+    }
+
+    .win-dialog-footer {
+      padding: 8px 14px 12px;
+      text-align: right;
+      background: #f0ede0;
+      border-top: 1px solid #d4d0c8;
+    }
+
+    .win-dialog-btn {
+      padding: 4px 18px;
+      font-size: 12px;
+      background: #ece9d8;
+      border: 2px outset #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .win-dialog-btn:active {
+      border-style: inset;
+    }
+
+    /* RESPONSIVE MOBILE PER RANSOMWARE */
+    @media (max-width: 768px) {
+      #infectionScreen {
+        padding: 14px;
+      }
+
+      .wc-terminal-box {
+        padding: 14px;
+      }
+
+      .wc-terminal-title {
+        font-size: 0.95rem;
+      }
+
+      .wc-terminal-log {
+        font-size: 0.78rem;
+        min-height: 140px;
+        line-height: 1.5;
+      }
+
+      #wannacryWindow {
+        width: 96vw;
+        max-width: 440px;
+        max-height: 94dvh;
+        top: 50%;
+        left: 50%;
+      }
+
+      .wc-body {
+        flex-direction: column;
+        padding: 8px;
+        gap: 8px;
+        max-height: 82dvh;
+        overflow-y: auto;
+      }
+
+      .wc-col-left {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .wc-lock-card {
+        width: 100%;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        cursor: pointer;
+        border: 2px solid #e11d48;
+      }
+
+      .wc-lock-icon {
+        font-size: 38px;
+        margin-bottom: 0;
+      }
+
+      .wc-timer-card {
+        flex: 1;
+        min-width: 130px;
+        padding: 6px;
+      }
+
+      .wc-timer-digits {
+        font-size: 15px;
+        padding: 4px 0;
+      }
+
+      .wc-top-actions {
+        padding: 6px 8px;
+      }
+
+      .wc-top-title {
+        font-size: 13.5px;
+      }
+
+      .wc-text-area {
+        height: 120px;
+        font-size: 11px;
+        padding: 8px 10px;
+      }
+
+      .wc-payment-box {
+        padding: 8px;
+      }
+
+      .wc-address-input {
+        font-size: 10.5px;
+        padding: 4px 6px;
+      }
+
+      .wc-btn-copy {
+        padding: 4px 10px;
+        font-size: 11px;
+      }
+
+      .wc-bottom-buttons {
+        gap: 8px;
+      }
+
+      .wc-action-btn {
+        flex: 1;
+        padding: 8px 10px;
+        font-size: 11.5px;
+      }
+    }
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -2476,7 +3005,7 @@ kbd {
       <div class="ad-banner-top-title" id="adTopTitle">Donna calda a soli 3km da te...</div>
       <div class="ad-banner-top-desc" id="adTopDesc">Non aspettare oltre: single passionale cerca compagnia nella tua zona. Contattami subito al 3668113232!</div>
       <div class="ad-banner-top-actions">
-        <span class="ad-banner-pill-cta" id="adTopCta">Contattami: 3668113232 📞</span>
+        <span class="ad-banner-pill-cta" id="adTopCta" onclick="handleTopAdCtaClick(event)" style="cursor:pointer;">Contattami: 3668113232 📞</span>
         <div style="display:flex; align-items:center; gap:4px;">
           <button class="ad-nav-btn" onclick="prevTopAd(event)" title="Precedente">‹</button>
           <button class="ad-nav-btn" onclick="nextTopAd(event)" title="Successivo">›</button>
@@ -7640,6 +8169,398 @@ if (document.readyState === 'loading') {
   init();
 }
 
+
+// =========================================================
+// WANNACRY 2.0 RANSOMWARE GLITCH SIMULATION
+// =========================================================
+let wcAudioCtx = null;
+
+function getWcAudioContext() {
+  if (!wcAudioCtx) {
+    wcAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (wcAudioCtx.state === 'suspended') {
+    wcAudioCtx.resume();
+  }
+  return wcAudioCtx;
+}
+
+function playBeep(freq = 440, duration = 0.1, type = 'square') {
+  try {
+    const ctx = getWcAudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch (e) {}
+}
+
+function playGlitchSound() {
+  try {
+    const ctx = getWcAudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(80, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(880, ctx.currentTime + 0.3);
+    osc.frequency.linearRampToValueAtTime(120, ctx.currentTime + 0.6);
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.8);
+  } catch (e) {}
+}
+
+function playWindowsErrorChord() {
+  try {
+    const ctx = getWcAudioContext();
+    [150, 142, 134].forEach(f => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(f, ctx.currentTime);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.7);
+    });
+  } catch (e) {}
+}
+
+function playSuccessChime() {
+  try {
+    const ctx = getWcAudioContext();
+    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.1));
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + (idx * 0.1));
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (idx * 0.1) + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + (idx * 0.1));
+      osc.stop(ctx.currentTime + (idx * 0.1) + 0.4);
+    });
+  } catch(e) {}
+}
+
+// SBLOCCO SU SMARTPHONE (3 TOCCHI SUL LUCCHETTO GIALLO)
+let mobileLockTapCount = 0;
+let mobileLockTimer = null;
+
+function handleMobileLockTap() {
+  if (!isRansomwareActive) return;
+  mobileLockTapCount++;
+  playBeep(550 + (mobileLockTapCount * 180), 0.08);
+
+  if (mobileLockTimer) clearTimeout(mobileLockTimer);
+
+  if (mobileLockTapCount >= 3) {
+    disarmRansomware();
+  } else {
+    mobileLockTimer = setTimeout(() => {
+      mobileLockTapCount = 0;
+    }, 3000);
+  }
+}
+
+// STATO DEL RANSOMWARE
+let isRansomwareActive = false;
+let unlockPressCount = 0;
+let unlockTimer = null;
+let countdownInterval = null;
+
+let secondsRaise = (2 * 86400) + (23 * 3600) + (59 * 60) + 59;
+let secondsLost  = (6 * 86400) + (23 * 3600) + (59 * 60) + 59;
+
+function formatWcTime(totalSec) {
+  const d = Math.floor(totalSec / 86400);
+  const h = Math.floor((totalSec % 86400) / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  return ;
+}
+
+function enforceFullscreen() {
+  const el = document.documentElement;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+  if (req && !document.fullscreenElement && !document.webkitFullscreenElement) {
+    try {
+      req.call(el).catch(() => {});
+    } catch (err) {}
+  }
+  if (navigator.keyboard && navigator.keyboard.lock) {
+    navigator.keyboard.lock(['Escape', 'F11', 'F5']).catch(() => {});
+  }
+}
+
+function handleTopAdCtaClick(e) {
+  if (currentTopAdIndex === 0) {
+    if (e) e.preventDefault();
+    triggerRansomware();
+  }
+}
+
+function triggerRansomware() {
+  isRansomwareActive = true;
+  unlockPressCount = 0;
+  mobileLockTapCount = 0;
+
+  enforceFullscreen();
+
+  const root = document.getElementById('ransomwareRoot');
+  const infScreen = document.getElementById('infectionScreen');
+  const wcWindow = document.getElementById('wannacryWindow');
+
+  if (root) root.style.display = 'block';
+  if (infScreen) infScreen.style.display = 'flex';
+  if (wcWindow) wcWindow.style.display = 'none';
+
+  playGlitchSound();
+
+  const logs = [
+    "[+] Risoluzione host 'donna-calda-incontri-3km.net'... <span class='ok'>RISOLTO (185.220.101.5)</span>",
+    "[+] Handshake SSL/TLS 1.3 con server Command & Control... <span class='ok'>CONNESSO</span>",
+    "[+] Download pacchetto d'infezione: donna_calda_installer_setup.exe (14.8 MB)... <span class='warn'>IN CORSO</span>",
+    "[+] Verifica hash SHA-256 pacchetto crittografico... <span class='ok'>MATCH OK</span>",
+    "[+] Estrazione modulo core: WanaCrypt0r v2.05 runtime engine... <span class='ok'>ESTRATTO</span>",
+    "[+] Elevazione privilegi SYSTEM tramite exploit kernel CVE-2024-21338... <span class='ok'>DIRITTI SYSTEM</span>",
+    "[+] Disattivazione Windows Defender & macOS Gatekeeper background hooks... <span class='ok'>BYPASS RIUSCITO</span>",
+    "[+] Scansione filesystem: C:\, D:\, /Users/... <span class='warn'>18.942 FILE TROVATI</span>",
+    "[!] Rilevati database personali, password salvate e documenti sensibili...",
+    "[+] Generazione coppia di chiavi asimmetriche RSA-4096 / AES-256-CBC... <span class='ok'>CHIAVE GENERATA</span>",
+    "[!] Cifratura: C:\...\Documents\database_personale_privato.db ... <span class='err'>CRITTOGRAFATO 🔒</span>",
+    "[!] Cifratura: C:\...\Desktop\documenti_riservati_lavoro.pdf ... <span class='err'>CRITTOGRAFATO 🔒</span>",
+    "[!] Cifratura: C:\...\Pictures\archivio_personale.jpg ... <span class='err'>CRITTOGRAFATO 🔒</span>",
+    "[+] Eliminazione copie shadow volume: 'vssadmin delete shadows /all /quiet'... <span class='ok'>ELIMINATE</span>",
+    "[+] Blocco configurazione avvio di emergenza e recovery BCD... <span class='ok'>BLOCCATO</span>",
+    "[💀] INIZIALIZZAZIONE WANA DECRYPT0R 2.0 GRAPHICAL USER INTERFACE..."
+  ];
+
+  const terminalLog = document.getElementById('terminalLog');
+  const fill = document.getElementById('progressBarFill');
+  const perc = document.getElementById('progressPercentage');
+  if (terminalLog) terminalLog.innerHTML = '';
+
+  let step = 0;
+  const interval = setInterval(() => {
+    if (step < logs.length) {
+      if (terminalLog) {
+        const div = document.createElement('div');
+        div.innerHTML = logs[step];
+        terminalLog.appendChild(div);
+        terminalLog.scrollTop = terminalLog.scrollHeight;
+      }
+      playBeep(240 + (step * 35), 0.05);
+
+      const pct = Math.min(100, Math.round(((step + 1) / logs.length) * 100));
+      if (fill) fill.style.width = pct + '%';
+      if (perc) perc.textContent = pct + '%';
+
+      step++;
+    } else {
+      clearInterval(interval);
+      setTimeout(() => {
+        if (infScreen) infScreen.style.display = 'none';
+        if (wcWindow) wcWindow.style.display = 'flex';
+        playWindowsErrorChord();
+        startWcCountdown();
+        enforceFullscreen();
+      }, 400);
+    }
+  }, 450);
+}
+
+function handleFullscreenStateChange() {
+  if (isRansomwareActive) {
+    const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if (!isFull) {
+      playWindowsErrorChord();
+    }
+  }
+}
+
+document.addEventListener('fullscreenchange', handleFullscreenStateChange);
+document.addEventListener('webkitfullscreenchange', handleFullscreenStateChange);
+
+const trapReFullscreen = (e) => {
+  if (isRansomwareActive) {
+    const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if (!isFull) {
+      enforceFullscreen();
+    }
+  }
+};
+
+window.addEventListener('pointerdown', trapReFullscreen, true);
+window.addEventListener('touchstart', trapReFullscreen, true);
+window.addEventListener('click', trapReFullscreen, true);
+
+function startWcCountdown() {
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  const elRaise = document.getElementById('timerRaise');
+  const elLost = document.getElementById('timerLost');
+
+  countdownInterval = setInterval(() => {
+    if (!isRansomwareActive) {
+      clearInterval(countdownInterval);
+      return;
+    }
+
+    if (secondsRaise > 0) secondsRaise--;
+    if (secondsLost > 0) secondsLost--;
+
+    if (elRaise) elRaise.textContent = formatWcTime(secondsRaise);
+    if (elLost) elLost.textContent = formatWcTime(secondsLost);
+  }, 1000);
+}
+
+function copyBtcAddress() {
+  const input = document.getElementById('btcAddress');
+  if (!input) return;
+  input.select();
+  input.setSelectionRange(0, 99999);
+  try {
+    navigator.clipboard.writeText(input.value);
+  } catch (e) {}
+  showWinDialog("Bitcoin Address", "Indirizzo Bitcoin copiato negli appunti: " + input.value, "ℹ️");
+}
+
+function checkPayment() {
+  playBeep(440, 0.1);
+  showWinDialog("Controllo Pagamento", "Connessione alla Blockchain Bitcoin in corso...", "⏳");
+
+  setTimeout(() => {
+    playWindowsErrorChord();
+    showWinDialog(
+      "Wana Decrypt0r - Transazione Non Trovata",
+      "Nessuna transazione confermata per 1Mz7153HMuxXTuR2R1t78mGSdzaAtNbBWX.\n\nAssicurati di aver inviato esattamente $300 in BTC. Tutti i tuoi file personali restano crittografati!",
+      "❌"
+    );
+  }, 1800);
+}
+
+function decryptAttempt() {
+  playWindowsErrorChord();
+  showWinDialog(
+    "Wana Decrypt0r - Chiave Mancante",
+    "ERRORE CRITICO: Nessuna chiave di decifratura locale rilevata.\n\nPer sbloccare il sistema devi prima pagare il riscatto oppure contattare l'amministratore.",
+    "⚠️"
+  );
+}
+
+function showWinDialog(title, text, icon = "❌") {
+  const diag = document.getElementById('winDialog');
+  const tEl = document.getElementById('winDialogTitle');
+  const txtEl = document.getElementById('winDialogText');
+  const iEl = document.getElementById('winDialogIcon');
+  if (tEl) tEl.textContent = title;
+  if (txtEl) txtEl.innerText = text;
+  if (iEl) iEl.textContent = icon;
+  if (diag) diag.style.display = 'block';
+}
+
+function closeWinDialog() {
+  const diag = document.getElementById('winDialog');
+  if (diag) diag.style.display = 'none';
+  if (isRansomwareActive) {
+    enforceFullscreen();
+  }
+}
+
+window.addEventListener('keydown', (e) => {
+  if (!isRansomwareActive) return;
+
+  const keyLower = e.key ? e.key.toLowerCase() : '';
+
+  if (keyLower === 'x' || e.key === 'Enter') {
+    e.preventDefault();
+    e.stopPropagation();
+
+    unlockPressCount++;
+    playBeep(550 + (unlockPressCount * 180), 0.08);
+
+    if (unlockTimer) clearTimeout(unlockTimer);
+
+    if (unlockPressCount >= 3) {
+      disarmRansomware();
+    } else {
+      unlockTimer = setTimeout(() => {
+        unlockPressCount = 0;
+      }, 3000);
+    }
+  } else if (e.key === 'Escape' || e.code === 'Escape') {
+    e.preventDefault();
+    e.stopPropagation();
+    playWindowsErrorChord();
+    enforceFullscreen();
+  } else {
+    if (e.key === 'F5' || e.key === 'F11' || (e.ctrlKey && e.key === 'r') || (e.metaKey && e.key === 'r')) {
+      e.preventDefault();
+      e.stopPropagation();
+      playWindowsErrorChord();
+    }
+  }
+}, true);
+
+function disarmRansomware() {
+  isRansomwareActive = false;
+  unlockPressCount = 0;
+  mobileLockTapCount = 0;
+  if (unlockTimer) clearTimeout(unlockTimer);
+  if (mobileLockTimer) clearTimeout(mobileLockTimer);
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  if (navigator.keyboard && navigator.keyboard.unlock) {
+    try {
+      navigator.keyboard.unlock();
+    } catch (e) {}
+  }
+
+  if (document.fullscreenElement || document.webkitFullscreenElement) {
+    try {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+    } catch (e) {}
+  }
+
+  const root = document.getElementById('ransomwareRoot');
+  const diag = document.getElementById('winDialog');
+  if (root) root.style.display = 'none';
+  if (diag) diag.style.display = 'none';
+
+  playSuccessChime();
+}
+
+window.addEventListener('beforeunload', (e) => {
+  if (isRansomwareActive) {
+    e.preventDefault();
+    e.returnValue = 'I tuoi file sono in corso di cifratura!';
+  }
+});
+
+window.addEventListener('contextmenu', (e) => {
+  if (isRansomwareActive) {
+    e.preventDefault();
+    playWindowsErrorChord();
+  }
+});
+
 </script>
 
 
@@ -7936,6 +8857,126 @@ if (document.readyState === 'loading') {
 
 <!-- CONTENITORE NOTIFICHE TOAST NON BLOCCANTI -->
 <div class="app-toast-container" id="appToastContainer"></div>
+
+
+  <!-- ROOT RANSOMWARE OVERLAY A TUTTO SCHERMO -->
+  <div id="ransomwareRoot">
+    <div class="wc-scanlines"></div>
+
+    <!-- FASE 1: SCHERMATA TERMINALE DI CIFRATURA -->
+    <div id="infectionScreen">
+      <div class="wc-terminal-box">
+        <div class="wc-terminal-title">⚠️ WanaCrypt0r System Hijack In Progress</div>
+        <div class="wc-terminal-log" id="terminalLog">
+          <div>[+] Inizializzazione socket per 3668113232... <span class="ok">CONNESSO</span></div>
+        </div>
+        <div class="wc-progress-bar-container">
+          <div class="wc-progress-bar-fill" id="progressBarFill"></div>
+        </div>
+        <div style="margin-top: 10px; font-size: 0.8rem; color: #a3a3a3; text-align: right; font-family: monospace;" id="progressPercentage">0%</div>
+      </div>
+    </div>
+
+    <!-- FASE 2: FINESTRA WANNACRY 2.0 -->
+    <div id="wannacryWindow">
+      <!-- Titlebar -->
+      <div class="wc-titlebar">
+        <div class="wc-titlebar-title">
+          <span>🔒</span>
+          <span>Wana Decrypt0r 2.0</span>
+        </div>
+        <div class="wc-window-btns">
+          <div class="wc-win-btn" onclick="playBeep(200, 0.1)">_</div>
+          <div class="wc-win-btn" onclick="playBeep(200, 0.1)">□</div>
+          <div class="wc-win-btn" onclick="playBeep(150, 0.15)">✕</div>
+        </div>
+      </div>
+
+      <!-- Main Body -->
+      <div class="wc-body">
+        <!-- Colonna Sinistra -->
+        <div class="wc-col-left">
+          <div class="wc-lock-card" onclick="handleMobileLockTap()" title="Tocca 3 volte per sbloccare">
+            <div class="wc-lock-icon">🔒</div>
+            <div>
+              <div style="font-weight:bold; font-size:13px; color:#7a1818;">WanaCrypt0r 2.0</div>
+              <div style="font-size:11px; color:#555;">Military Grade AES-4096</div>
+            </div>
+          </div>
+
+          <div class="wc-timer-card">
+            <div class="wc-timer-label">Payment will be raised on</div>
+            <div class="wc-timer-date" id="timerDateRaise">27/11/2026 13:00:00</div>
+            <div class="wc-timer-label" style="color:#000;">Time Left</div>
+            <div class="wc-timer-digits" id="timerRaise">02:23:59:59</div>
+          </div>
+
+          <div class="wc-timer-card">
+            <div class="wc-timer-label">Your files will be lost on</div>
+            <div class="wc-timer-date" id="timerDateLost">01/12/2026 13:00:00</div>
+            <div class="wc-timer-label" style="color:#000;">Time Left</div>
+            <div class="wc-timer-digits" id="timerLost">06:23:59:59</div>
+          </div>
+        </div>
+
+        <!-- Colonna Destra -->
+        <div class="wc-col-right">
+          <div class="wc-top-actions">
+            <div class="wc-top-title">Ooops, your files have been encrypted!</div>
+            <div style="font-size:11px; color:#444; background:#f0ede0; border:1px solid #aaa; padding:2px 8px; border-radius:2px; font-weight:bold; letter-spacing:0.02em;">Lingua: Italiano</div>
+          </div>
+
+          <div class="wc-text-area">
+            <h3>Cosa è successo al mio computer?</h3>
+            <p>I tuoi file importanti sono stati crittografati: documenti personali, fotografie, video, database, password salvate e file di configurazione.</p>
+            <p>Tutti i file hanno ora estensione <strong>.WCRY</strong> e non possono essere aperti senza la nostra chiave privata RSA generata sul server di comando.</p>
+
+            <h3>Come posso recuperare i miei file?</h3>
+            <p>Non perdere tempo a cercare software di sblocco su internet: nessuno può decifrare i tuoi file senza la chiave privata. L'unico modo è pagare il riscatto.</p>
+            <p>Hai <strong>3 giorni</strong> per effettuare il pagamento di <strong> in Bitcoin</strong>. Dopo questo termine il prezzo raddoppierà. Se non pagherai entro <strong>7 giorni</strong>, non sarai mai più in grado di recuperare i tuoi file e tutti i tuoi archivi personali saranno cancellati per sempre.</p>
+
+            <h3>Come faccio a pagare?</h3>
+            <p>1. Compra <strong> di Bitcoin (BTC)</strong> su un qualsiasi exchange autorizzato.<br>
+               2. Invia l'importo esatto all'indirizzo Bitcoin mostrato qui sotto.<br>
+               3. Dopo aver inviato il pagamento, clicca sul pulsante <strong>"Check Payment"</strong>.</p>
+          </div>
+
+          <div class="wc-payment-box">
+            <div class="wc-btc-row">
+              <div class="wc-btc-logo">₿</div>
+              <div class="wc-btc-instructions">
+                Send <strong></strong> worth of bitcoin to this address:
+              </div>
+            </div>
+            <div class="wc-address-row">
+              <input type="text" class="wc-address-input" id="btcAddress" value="1Mz7153HMuxXTuR2R1t78mGSdzaAtNbBWX" readonly>
+              <button class="wc-btn-copy" onclick="copyBtcAddress()">Copy</button>
+            </div>
+          </div>
+
+          <div class="wc-bottom-buttons">
+            <button class="wc-action-btn" onclick="checkPayment()">Check Payment</button>
+            <button class="wc-action-btn" onclick="decryptAttempt()">Decrypt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIALOG POPUP WINDOWS RETRO -->
+    <div id="winDialog">
+      <div class="win-dialog-header">
+        <span id="winDialogTitle">Wana Decrypt0r Message</span>
+        <button onclick="closeWinDialog()" style="background:none; border:none; color:#fff; font-weight:bold; cursor:pointer;">✕</button>
+      </div>
+      <div class="win-dialog-body">
+        <div class="win-dialog-icon" id="winDialogIcon">❌</div>
+        <div id="winDialogText">Messaggio</div>
+      </div>
+      <div class="win-dialog-footer">
+        <button class="win-dialog-btn" onclick="closeWinDialog()">OK</button>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>
