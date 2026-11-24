@@ -1466,6 +1466,156 @@ kbd {
   cursor: not-allowed;
 }
 
+
+/* ---------- TELEGRAM STYLE CHAT & USER ACTIVITY BADGES ---------- */
+.chat-unauth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  padding: 24px 16px;
+}
+
+.telegram-bubble {
+  max-width: 88%;
+  padding: 8px 12px 6px 12px;
+  border-radius: 14px;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  position: relative;
+  word-break: break-word;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  animation: fadeInMsg 0.2s ease-out;
+}
+@keyframes fadeInMsg {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.telegram-bubble.mine {
+  align-self: flex-end;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-bottom-right-radius: 3px;
+}
+
+.telegram-bubble.other {
+  align-self: flex-start;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-bottom-left-radius: 3px;
+}
+
+.telegram-bubble.report-bubble {
+  border-left: 3.5px solid #ff9f1c !important;
+  background: rgba(255, 159, 28, 0.09) !important;
+  color: var(--ink) !important;
+}
+
+.telegram-author-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.telegram-author-name {
+  font-size: 0.74rem;
+  font-weight: 750;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.telegram-bubble.mine .telegram-author-name {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.telegram-bubble.other .telegram-author-name {
+  color: var(--accent);
+}
+
+.telegram-msg-content {
+  font-size: 0.84rem;
+  white-space: pre-wrap;
+  margin-bottom: 2px;
+  word-break: break-word;
+}
+
+.telegram-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  font-size: 0.62rem;
+  opacity: 0.72;
+  margin-top: 2px;
+}
+
+/* Badge Livello Attivita Utente */
+.chat-badge-tier {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: middle;
+}
+.badge-tier-1 {
+  background: rgba(108, 117, 125, 0.15);
+  color: #6c757d;
+  border: 1px solid rgba(108, 117, 125, 0.3);
+}
+.badge-tier-2 {
+  background: rgba(205, 127, 50, 0.15);
+  color: #cd7f32;
+  border: 1px solid rgba(205, 127, 50, 0.3);
+}
+.badge-tier-3 {
+  background: rgba(58, 134, 255, 0.15);
+  color: #3a86ff;
+  border: 1px solid rgba(58, 134, 255, 0.3);
+}
+.badge-tier-4 {
+  background: rgba(255, 190, 11, 0.18);
+  color: #d49a00;
+  border: 1px solid rgba(255, 190, 11, 0.4);
+}
+.badge-role-admin {
+  background: rgba(235, 94, 40, 0.2);
+  color: #eb5e28;
+  border: 1px solid rgba(235, 94, 40, 0.4);
+  font-weight: 800;
+}
+
+/* Tasto Segnalazione Errore Domanda */
+.btn-report-question {
+  background: rgba(255, 159, 28, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(255, 159, 28, 0.3);
+  border-radius: var(--r-md);
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.18s ease;
+}
+.btn-report-question:hover {
+  background: rgba(255, 159, 28, 0.22);
+  color: #b45309;
+  transform: translateY(-1px);
+}
+
 /* 2. BANNER VERTICALE SULLA DESTRA DEL SITO */
 .ad-banner-vertical {
   width: 270px;
@@ -1985,7 +2135,12 @@ kbd {
     <div class="navigator-container" id="navDotsContainer"></div>
 
     <div class="question-header">
-      <div class="question-idx" id="questionNumLabel">DOMANDA #1</div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div class="question-idx" id="questionNumLabel" style="margin-bottom: 0;">DOMANDA #1</div>
+        <button type="button" class="btn-report-question" id="btnReportQuestion" onclick="openReportQuestionModal()" title="Segnala un errore o refuso in questa domanda">
+          ⚠️ Segnala errore
+        </button>
+      </div>
       <div class="question-title" id="questionText">Caricamento...</div>
     </div>
 
@@ -2260,6 +2415,21 @@ kbd {
         <div style="text-align: center; color: var(--muted); padding: 18px;">Caricamento statistiche errori...</div>
       </div>
     </div>
+
+    <!-- Segnalazioni Domande dagli Allievi -->
+    <div style="background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; margin-top: 24px;">
+      <div style="padding: 12px 16px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span>🚩 Segnalazioni Errori Domande dagli Allievi</span>
+          <span class="chat-badge" id="adminReportsCountBadge" style="display:none;">0 in attesa</span>
+        </div>
+        <button class="btn-sm" onclick="loadAdminQuestionReports()" style="font-size: 0.75rem; padding: 3px 8px;">🔄 Aggiorna</button>
+      </div>
+      <div id="adminQuestionReportsContainer" style="padding: 14px;">
+        <div style="text-align: center; color: var(--muted); padding: 18px;">Caricamento segnalazioni...</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2286,8 +2456,8 @@ kbd {
   </div>
 
   <div class="chat-footer" id="chatFooter">
-    <div id="chatAuthPrompt" style="display:none; text-align:center; padding:8px; font-size:0.78rem; color:var(--muted); background:var(--surface-2); border-radius:var(--r-sm); margin-bottom:6px;">
-      <button class="btn-sm" onclick="openAuthModal()" style="font-size:0.75rem; padding:3px 10px; margin-bottom:4px; font-weight:700;">👤 Accedi per scrivere</button>
+    <div id="chatAuthBarNotice" style="display:none; text-align:center; padding:8px 10px; font-size:0.78rem; color:var(--muted); background:var(--surface-2); border-radius:var(--r-sm);">
+      🔒 Accedi con il tuo account per partecipare alla chat
     </div>
     <form id="chatForm" onsubmit="handleSendChatMessage(event)" style="display:flex; gap:6px; align-items:center;">
       <input type="text" id="chatInputMessage" placeholder="Scrivi un messaggio alla classe..." maxlength="400" autocomplete="off" style="flex:1; padding:9px 12px; font-size:0.84rem; border-radius:var(--r-md); border:1px solid var(--line); background:var(--surface); color:var(--ink);">
@@ -4286,7 +4456,7 @@ if (document.readyState === 'loading') {
 
 
 // ==========================================================================
-// CHAT DI CLASSE IN TEMPO REALE (SUPABASE REALTIME)
+// CHAT DI CLASSE IN TEMPO REALE (SUPABASE REALTIME) & TELEGRAM STYLE
 // ==========================================================================
 let chatChannel = null;
 let chatUnreadCount = 0;
@@ -4301,32 +4471,53 @@ function initClassChat() {
   }
 
   updateChatAuthUI();
-
-  if (sbClient) {
-    loadRecentChatMessages();
-    setupChatRealtimeSubscription();
-  }
 }
 
 function updateChatAuthUI() {
-  const promptEl = document.getElementById('chatAuthPrompt');
-  const inputEl = document.getElementById('chatInputMessage');
-  const btnEl = document.getElementById('chatSendBtn');
+  const container = document.getElementById('chatMessagesContainer');
+  const chatForm = document.getElementById('chatForm');
+  const noticeEl = document.getElementById('chatAuthBarNotice');
 
   if (currentUser) {
-    if (promptEl) promptEl.style.display = 'none';
-    if (inputEl) {
-      inputEl.disabled = false;
-      inputEl.placeholder = 'Scrivi un messaggio alla classe...';
+    // Utente autenticato
+    if (noticeEl) noticeEl.style.display = 'none';
+    if (chatForm) chatForm.style.display = 'flex';
+
+    // Rimuove la schermata di blocco se presente
+    if (container && container.querySelector('.chat-unauth-container')) {
+      container.innerHTML = '<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;" id="chatLoadingState">Caricamento messaggi...</div>';
+      loadRecentChatMessages();
+    } else if (container && !container.children.length) {
+      loadRecentChatMessages();
     }
-    if (btnEl) btnEl.disabled = false;
+
+    if (!chatChannel && sbClient) {
+      setupChatRealtimeSubscription();
+    }
   } else {
-    if (promptEl) promptEl.style.display = 'block';
-    if (inputEl) {
-      inputEl.disabled = true;
-      inputEl.placeholder = 'Accedi per poter inviare messaggi';
+    // Utente NON autenticato: mostra schermata con avviso e pulsante centrale per il login
+    if (noticeEl) noticeEl.style.display = 'block';
+    if (chatForm) chatForm.style.display = 'none';
+
+    if (container) {
+      container.innerHTML = `
+        <div class="chat-unauth-container">
+          <div style="font-size: 2.2rem; margin-bottom: 8px;">💬🔒</div>
+          <div style="font-size: 0.95rem; font-weight: 750; color: var(--ink); margin-bottom: 6px;">Chat Riservata alla Classe</div>
+          <div style="font-size: 0.78rem; color: var(--muted); line-height: 1.45; margin-bottom: 16px; max-width: 250px;">
+            Accedi o registrati per visualizzare la conversazione e interagire in tempo reale con compagni e docenti.
+          </div>
+          <button class="btn-primary" onclick="openAuthModal()" style="font-size: 0.82rem; padding: 9px 18px; font-weight: 700; border-radius: var(--r-md); cursor: pointer; box-shadow: 0 4px 12px rgba(39, 72, 240, 0.25);">
+            👤 Accedi o Registrati
+          </button>
+        </div>
+      `;
     }
-    if (btnEl) btnEl.disabled = true;
+
+    if (chatChannel && sbClient) {
+      sbClient.removeChannel(chatChannel);
+      chatChannel = null;
+    }
   }
 }
 
@@ -4355,27 +4546,27 @@ function toggleChatCollapse() {
 }
 
 async function loadRecentChatMessages() {
-  if (!sbClient) return;
+  if (!sbClient || !currentUser) return;
 
   try {
     const { data: messages, error } = await sbClient
       .from('chat_messages')
       .select('*')
       .order('created_at', { ascending: true })
-      .limit(60);
+      .limit(80);
 
     const container = document.getElementById('chatMessagesContainer');
     if (!container) return;
 
     if (error) {
       console.warn('Errore lettura chat_messages:', error);
-      container.innerHTML = `<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">Chat disponibile. Crea la tabella su Supabase per abilitare i messaggi.</div>`;
+      container.innerHTML = `<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">Crea la tabella chat_messages su Supabase per abilitare i messaggi.</div>`;
       return;
     }
 
     container.innerHTML = '';
     if (!messages || messages.length === 0) {
-      container.innerHTML = `<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">Nessun messaggio. Sii il primo a scrivere alla classe! 👋</div>`;
+      container.innerHTML = `<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">Nessun messaggio recente. Sii il primo a scrivere alla classe! 👋</div>`;
       return;
     }
 
@@ -4389,12 +4580,29 @@ async function loadRecentChatMessages() {
   }
 }
 
+function getUserActivityBadge(role, quizCount, userName) {
+  const isDaniloAdmin = !!((userName && userName.toLowerCase().includes('danilo')) || role === 'admin');
+  if (isDaniloAdmin) {
+    return `<span class="chat-badge-tier badge-role-admin">👨‍✈️ Admin</span>`;
+  }
+  const count = Number(quizCount) || 0;
+  if (count >= 100) {
+    return `<span class="chat-badge-tier badge-tier-4" title="${count} quiz completati">🥇 Esperto</span>`;
+  } else if (count >= 50) {
+    return `<span class="chat-badge-tier badge-tier-3" title="${count} quiz completati">🥈 Pilota</span>`;
+  } else if (count >= 10) {
+    return `<span class="chat-badge-tier badge-tier-2" title="${count} quiz completati">🥉 Allievo</span>`;
+  } else {
+    return `<span class="chat-badge-tier badge-tier-1" title="Appena iscritto">🌱 Nuovo</span>`;
+  }
+}
+
 function appendChatMessageToUI(msg, scroll = true) {
   const container = document.getElementById('chatMessagesContainer');
-  if (!container) return;
+  if (!container || !currentUser) return;
 
-  // Se c'era il placeholder, rimuovilo
-  if (container.querySelector('#chatLoadingState') || container.children.length === 1 && container.children[0].textContent.includes('Nessun messaggio')) {
+  // Se c'era il placeholder o la schermata unauth, rimuovilo
+  if (container.querySelector('#chatLoadingState') || (container.children.length === 1 && container.children[0].textContent.includes('Nessun messaggio'))) {
     container.innerHTML = '';
   }
 
@@ -4402,18 +4610,22 @@ function appendChatMessageToUI(msg, scroll = true) {
   const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '';
 
   const bubble = document.createElement('div');
-  bubble.className = `chat-bubble ${isMine ? 'mine' : 'other'}`;
+  const isReport = msg.is_report || (msg.message && msg.message.startsWith('⚠️ Segnalazione'));
+  bubble.className = `telegram-bubble ${isMine ? 'mine' : 'other'} ${isReport ? 'report-bubble' : ''}`;
 
-  const adminBadge = (msg.user_role === 'admin' || (msg.user_name && msg.user_name.toLowerCase().includes('danilo'))) 
-    ? `<span class="chat-admin-tag">ADMIN</span>` 
-    : '';
+  const badgeHtml = getUserActivityBadge(msg.user_role, msg.quiz_count, msg.user_name);
 
   bubble.innerHTML = `
-    <div class="chat-bubble-author">
-      ${escapeHtml(msg.user_name || 'Allievo')} ${adminBadge}
-      <span class="chat-bubble-time">${timeStr}</span>
+    <div class="telegram-author-row">
+      <div class="telegram-author-name">
+        <span>${escapeHtml(msg.user_name || 'Allievo')}</span>
+        ${badgeHtml}
+      </div>
     </div>
-    <div style="font-size:0.83rem;">${escapeHtml(msg.message || '')}</div>
+    <div class="telegram-msg-content">${escapeHtml(msg.message || '')}</div>
+    <div class="telegram-meta-row">
+      <span>${timeStr}</span>
+    </div>
   `;
 
   container.appendChild(bubble);
@@ -4424,7 +4636,7 @@ function appendChatMessageToUI(msg, scroll = true) {
 }
 
 function setupChatRealtimeSubscription() {
-  if (!sbClient) return;
+  if (!sbClient || !currentUser || chatChannel) return;
 
   try {
     chatChannel = sbClient.channel('public:chat_messages')
@@ -4466,11 +4678,14 @@ async function handleSendChatMessage(event) {
     const authorName = currentProfile?.full_name || currentUser.email.split('@')[0];
     const isDaniloAdmin = !!(currentUser.email && currentUser.email.toLowerCase() === 'giacobbe.danilo@gmail.com');
     const authorRole = (isDaniloAdmin || currentProfile?.role === 'admin') ? 'admin' : 'student';
+    const myHistory = (typeof getHistory === 'function') ? getHistory() : [];
+    const myQuizCount = myHistory.length;
 
     const { error } = await sbClient.from('chat_messages').insert({
       user_id: currentUser.id,
       user_name: authorName,
       user_role: authorRole,
+      quiz_count: myQuizCount,
       message: text
     });
 
@@ -4488,7 +4703,206 @@ async function handleSendChatMessage(event) {
   }
 }
 
+// ==========================================================================
+// SEGNALAZIONE ERRORI DOMANDE (TEST -> CHAT & ADMIN DASHBOARD)
+// ==========================================================================
+function openReportQuestionModal() {
+  if (!currentUser) {
+    showAppDialog({
+      title: 'Accesso Richiesto',
+      message: `Per segnalare un errore e notificare la classe e l'istruttore devi prima effettuare l'accesso con il tuo account.`,
+      type: 'info',
+      confirmText: 'Accedi ora',
+      onConfirm: () => openAuthModal()
+    });
+    return;
+  }
 
+  const q = currentQuestions ? currentQuestions[currentIndex] : null;
+  if (!q) {
+    showAppDialog({ title: 'Attenzione', message: 'Nessuna domanda selezionata per la segnalazione.', type: 'warning' });
+    return;
+  }
+
+  const metaEl = document.getElementById('reportModalMeta');
+  const textEl = document.getElementById('reportModalQText');
+  const notesEl = document.getElementById('reportQuestionNotes');
+
+  if (metaEl) metaEl.textContent = `[${q.materia}] • Domanda #${q.num}`;
+  if (textEl) textEl.textContent = `"${q.domanda}"`;
+  if (notesEl) {
+    notesEl.value = '';
+    setTimeout(() => notesEl.focus(), 150);
+  }
+
+  const modal = document.getElementById('reportQuestionModalOverlay');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeReportQuestionModal() {
+  const modal = document.getElementById('reportQuestionModalOverlay');
+  if (modal) modal.style.display = 'none';
+}
+
+async function submitQuestionReport() {
+  if (!currentUser || !sbClient) {
+    openAuthModal();
+    return;
+  }
+
+  const q = currentQuestions ? currentQuestions[currentIndex] : null;
+  if (!q) return;
+
+  const notesEl = document.getElementById('reportQuestionNotes');
+  const notes = (notesEl?.value || '').trim();
+  if (!notes) {
+    showAppDialog({ title: 'Nota Richiesta', message: `Inserisci una breve descrizione dell'errore riscontrato.`, type: 'warning' });
+    notesEl?.focus();
+    return;
+  }
+
+  const submitBtn = document.getElementById('btnSubmitReportQuestion');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Invio in corso...';
+  }
+
+  try {
+    const authorName = currentProfile?.full_name || currentUser.email.split('@')[0];
+    const authorRole = currentProfile?.role || 'student';
+    const myHistory = (typeof getHistory === 'function') ? getHistory() : [];
+    const myQuizCount = myHistory.length;
+
+    // 1. Salva la segnalazione nella tabella question_reports
+    const { error: repErr } = await sbClient.from('question_reports').insert({
+      question_id: q.id,
+      question_num: q.num,
+      subject: q.materia,
+      question_text: q.domanda,
+      user_id: currentUser.id,
+      user_name: authorName,
+      user_email: currentUser.email,
+      notes: notes,
+      status: 'pending'
+    });
+
+    if (repErr) {
+      console.warn('Errore salvataggio question_reports:', repErr);
+    }
+
+    // 2. Pubblica automaticamente il messaggio nella Chat di Classe
+    const reportChatText = `⚠️ Segnalazione Domanda #${q.num} (${q.materia}): "${notes}"`;
+    await sbClient.from('chat_messages').insert({
+      user_id: currentUser.id,
+      user_name: authorName,
+      user_role: authorRole,
+      quiz_count: myQuizCount,
+      message: reportChatText,
+      is_report: true
+    });
+
+    closeReportQuestionModal();
+
+    showAppDialog({
+      title: 'Segnalazione Inviata',
+      message: `Grazie! La tua segnalazione sulla domanda #${q.num} è stata inviata all'istruttore e condivisa nella chat di classe.`,
+      icon: '✅',
+      type: 'success'
+    });
+
+  } catch (err) {
+    console.error('Errore invio segnalazione:', err);
+    showAppDialog({ title: 'Errore', message: 'Impossibile inviare la segnalazione: ' + err.message, type: 'error' });
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Invia Segnalazione 🚀';
+    }
+  }
+}
+
+// --- GESTIONE SEGNALAZIONI NEL PANNELLO ADMIN ---
+async function loadAdminQuestionReports() {
+  if (!sbClient) return;
+  const container = document.getElementById('adminQuestionReportsContainer');
+  const badge = document.getElementById('adminReportsCountBadge');
+  if (!container) return;
+
+  try {
+    const { data: reports, error } = await sbClient
+      .from('question_reports')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('Errore lettura question_reports:', error);
+      container.innerHTML = `<div style="text-align:center; padding:16px; color:var(--muted); font-size:0.8rem;">Crea la tabella question_reports su Supabase per gestire le segnalazioni.</div>`;
+      return;
+    }
+
+    if (!reports || reports.length === 0) {
+      container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--muted); font-size:0.82rem;">Nessuna segnalazione di errore ricevuta finora. Ottimo! 🎉</div>`;
+      if (badge) badge.style.display = 'none';
+      return;
+    }
+
+    const pendingCount = reports.filter(r => r.status === 'pending').length;
+    if (badge) {
+      badge.textContent = pendingCount > 0 ? `${pendingCount} in attesa` : `${reports.length} totali`;
+      badge.style.display = 'inline-block';
+      badge.style.background = pendingCount > 0 ? '#ff4757' : 'var(--muted)';
+    }
+
+    let html = '<div style="display:flex; flex-direction:column; gap:12px;">';
+    reports.forEach(r => {
+      const isResolved = r.status === 'resolved';
+      const dateStr = r.created_at ? new Date(r.created_at).toLocaleString('it-IT') : '';
+      html += `
+        <div style="background:var(--surface-2); border:1px solid ${isResolved ? 'var(--line)' : '#ff9f1c'}; border-radius:var(--r-md); padding:12px 14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:6px;">
+            <div>
+              <strong style="color:var(--ink); font-size:0.88rem;">[${escapeHtml(r.subject)}] Domanda #${r.question_num}</strong>
+              <span style="font-size:0.75rem; color:var(--muted); margin-left:8px;">Segnalata da <strong>${escapeHtml(r.user_name || 'Allievo')}</strong> (${escapeHtml(r.user_email || '')}) il ${dateStr}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:10px; background:${isResolved ? 'rgba(46, 213, 115, 0.15)' : 'rgba(255, 159, 28, 0.15)'}; color:${isResolved ? '#2ed573' : '#e67e22'};">
+                ${isResolved ? '✓ Risolta' : '⚠️ In Attesa'}
+              </span>
+              <button class="btn-sm" onclick="toggleReportStatus('${r.id}', '${r.status}')" style="font-size:0.75rem; padding:3px 8px;">
+                ${isResolved ? 'Riapri' : 'Segna come Risolta'}
+              </button>
+            </div>
+          </div>
+          <div style="font-size:0.82rem; color:var(--muted); margin-bottom:8px; font-style:italic; background:var(--surface); padding:8px 10px; border-radius:6px; border-left:3px solid var(--accent);">
+            "${escapeHtml(r.question_text)}"
+          </div>
+          <div style="font-size:0.84rem; color:var(--ink); line-height:1.4;">
+            <strong>Nota allievo:</strong> ${escapeHtml(r.notes)}
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+  } catch (err) {
+    console.error('Errore recupero segnalazioni admin:', err);
+  }
+}
+
+async function toggleReportStatus(reportId, currentStatus) {
+  if (!sbClient) return;
+  const newStatus = currentStatus === 'resolved' ? 'pending' : 'resolved';
+  try {
+    const { error } = await sbClient.from('question_reports').update({ status: newStatus }).eq('id', reportId);
+    if (error) {
+      showAppDialog({ title: 'Errore', message: 'Impossibile aggiornare lo stato: ' + error.message, type: 'error' });
+    } else {
+      loadAdminQuestionReports();
+    }
+  } catch (e) {
+    showAppDialog({ title: 'Errore', message: e.message, type: 'error' });
+  }
+}
 // ==========================================================================
 // GESTIONE DIALOGHI E NOTIFICHE IN-APP (SOSTITUZIONE POPUP DI SISTEMA)
 // ==========================================================================
@@ -5292,6 +5706,7 @@ async function loadAdminDashboardData() {
 
     // Render Top Errori Classe
     renderAdminClassErrors(adminStatsCache);
+    loadAdminQuestionReports();
 
   } catch (err) {
     console.error('Errore caricamento dashboard admin:', err);
@@ -5892,6 +6307,46 @@ function checkUrlForSyncData() {
 }
 
 </script>
+
+
+<!-- MODALE SEGNALAZIONE ERRORE DOMANDA -->
+<div class="modal-overlay" id="reportQuestionModalOverlay" style="display:none;" onclick="if(event.target===this) closeReportQuestionModal()">
+  <div class="modal-card" style="max-width: 520px;">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:1.3rem;">⚠️</span>
+        <h3 style="margin:0; font-size:1.1rem; color:var(--ink);">Segnala Errore Domanda</h3>
+      </div>
+      <button class="modal-close-btn" onclick="closeReportQuestionModal()" aria-label="Chiudi modale">✕</button>
+    </div>
+    <div style="padding: 16px 20px;">
+      <div style="background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-md); padding:10px 12px; margin-bottom:14px;">
+        <div style="font-size:0.75rem; font-weight:700; color:var(--accent); margin-bottom:4px;" id="reportModalMeta">
+          [Materia] • Domanda #0
+        </div>
+        <div style="font-size:0.83rem; color:var(--ink); font-style:italic;" id="reportModalQText">
+          Testo della domanda...
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label for="reportQuestionNotes" style="display:block; font-size:0.82rem; font-weight:700; color:var(--ink); margin-bottom:6px;">
+          Descrivi l'errore o imprecisione riscontrata:
+        </label>
+        <textarea id="reportQuestionNotes" rows="4" placeholder="Es: La risposta corretta indicata non corrisponde al testo o c'è un refuso nell'opzione B..." style="width:100%; box-sizing:border-box; padding:10px 12px; font-size:0.85rem; border:1px solid var(--line); border-radius:var(--r-md); background:var(--surface); color:var(--ink); font-family:inherit; resize:vertical;"></textarea>
+      </div>
+
+      <div style="font-size:0.75rem; color:var(--muted); line-height:1.4; margin-bottom:16px;">
+        💡 La tua segnalazione verrà salvata per l'Istruttore nella Dashboard e condivisa automaticamente nella Chat di Classe.
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button type="button" class="btn-sm" onclick="closeReportQuestionModal()" style="padding:8px 14px; font-size:0.84rem;">Annulla</button>
+        <button type="button" class="btn-cta" id="btnSubmitReportQuestion" onclick="submitQuestionReport()" style="padding:8px 18px; font-size:0.84rem;">Invia Segnalazione 🚀</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- MODALE QR CODE DI SINCRONIZZAZIONE -->
 <div class="sync-modal-overlay" id="syncModalOverlay" onclick="closeQrSyncModal(event)">
