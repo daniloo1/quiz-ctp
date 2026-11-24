@@ -1,0 +1,524 @@
+/* ==========================================================================
+   OVERLAY RANSOMWARE WANNACRY (Wana Decrypt0r 2.0)
+   Foglio isolato per la simulazione retro Windows/Terminal
+   ========================================================================== */
+
+#ransomwareRoot {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 999999999;
+  background: #000;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* FASE 1: SCHERMO DI CIFRATURA GLITCH */
+#infectionScreen {
+  position: absolute;
+  inset: 0;
+  background: #050505;
+  color: #22c55e;
+  font-family: "Courier New", Courier, monospace;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.wc-scanlines {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.wc-terminal-box {
+  max-width: 700px;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #16a34a;
+  border-radius: 6px;
+  padding: 24px;
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+  position: relative;
+}
+
+.wc-terminal-title {
+  color: #ef4444;
+  font-weight: bold;
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid #333;
+  padding-bottom: 8px;
+  animation: wcBlink 0.8s infinite alternate;
+}
+
+@keyframes wcBlink {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; text-shadow: 0 0 10px #ef4444; }
+}
+
+.wc-terminal-log {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  min-height: 140px;
+}
+
+.wc-terminal-log .err { color: #f87171; font-weight: bold; }
+.wc-terminal-log .ok { color: #4ade80; }
+.wc-terminal-log .warn { color: #facc15; }
+
+.wc-progress-bar-container {
+  width: 100%;
+  height: 20px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.wc-progress-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+  box-shadow: 0 0 10px #ef4444;
+  transition: width 0.08s linear;
+}
+
+/* FASE 2: WANA DECRYPT0R 2.0 FINESTRA PRINCIPALE */
+#wannacryWindow {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px;
+  max-width: 96vw;
+  max-height: 94vh;
+  max-height: 94dvh;
+  background: #ece9d8;
+  border: 3px solid #7a1818;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  color: #000;
+  flex-direction: column;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.wc-titlebar {
+  background: linear-gradient(180deg, #8b1010 0%, #680b0b 100%);
+  color: #fff;
+  padding: 6px 12px;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #4a0606;
+}
+
+.wc-titlebar-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wc-window-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.wc-win-btn {
+  width: 20px;
+  height: 20px;
+  background: #d4d0c8;
+  border: 1px solid #808080;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wc-win-btn:active {
+  border-style: inset;
+}
+
+.wc-body {
+  display: flex;
+  padding: 12px;
+  gap: 12px;
+  background: #7a1818;
+  overflow-y: auto;
+}
+
+.wc-col-left {
+  width: 250px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wc-lock-card {
+  background: #fff;
+  border: 2px solid #555;
+  padding: 14px;
+  text-align: center;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.wc-lock-icon {
+  font-size: 70px;
+  line-height: 1;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.wc-timer-card {
+  background: #fff;
+  border: 2px solid #555;
+  padding: 10px;
+  border-radius: 3px;
+}
+
+.wc-timer-label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #7a1818;
+  margin-bottom: 4px;
+}
+
+.wc-timer-date {
+  font-size: 11px;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.wc-timer-digits {
+  background: #000;
+  color: #facc15;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  padding: 6px 0;
+  border-radius: 2px;
+  letter-spacing: 2px;
+  box-shadow: inset 0 0 6px rgba(255, 255, 0, 0.4);
+}
+
+.wc-col-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wc-top-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 6px 12px;
+  border: 1px solid #999;
+  border-radius: 2px;
+}
+
+.wc-top-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #7a1818;
+}
+
+.wc-text-area {
+  background: #fff;
+  border: 1px solid #999;
+  height: 220px;
+  overflow-y: scroll;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #111;
+  border-radius: 2px;
+}
+
+.wc-text-area h3 {
+  font-size: 13.5px;
+  color: #7a1818;
+  margin: 10px 0 4px 0;
+}
+
+.wc-text-area h3:first-child {
+  margin-top: 0;
+}
+
+.wc-payment-box {
+  background: #fff;
+  border: 1px solid #999;
+  padding: 10px 12px;
+  border-radius: 2px;
+}
+
+.wc-btc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.wc-btc-logo {
+  font-size: 28px;
+  color: #f7931a;
+  font-weight: bold;
+}
+
+.wc-btc-instructions {
+  font-size: 12px;
+  color: #222;
+  font-weight: bold;
+}
+
+.wc-address-row {
+  display: flex;
+  gap: 8px;
+}
+
+.wc-address-input {
+  flex: 1;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid #666;
+  background: #f8f8f8;
+  font-weight: bold;
+  color: #000;
+}
+
+.wc-btn-copy {
+  background: #ece9d8;
+  border: 2px outset #fff;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.wc-btn-copy:active {
+  border-style: inset;
+}
+
+.wc-bottom-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.wc-action-btn {
+  background: linear-gradient(180deg, #f4f2e8 0%, #dfdbcb 100%);
+  border: 2px outset #ffffff;
+  padding: 8px 24px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #111;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.wc-action-btn:hover {
+  background: #ece7d5;
+}
+
+.wc-action-btn:active {
+  border-style: inset;
+}
+
+/* MODALE RETRO DI WINDOWS */
+#winDialog {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  max-width: 90vw;
+  background: #ece9d8;
+  border: 2px solid #0055ea;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+  font-family: Tahoma, Arial, sans-serif;
+  z-index: 20;
+}
+
+.win-dialog-header {
+  background: linear-gradient(90deg, #0055ea, #3a93ff);
+  color: white;
+  padding: 5px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.win-dialog-body {
+  padding: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 12px;
+  color: #000;
+  line-height: 1.4;
+}
+
+.win-dialog-icon {
+  font-size: 32px;
+}
+
+.win-dialog-footer {
+  padding: 8px 14px 12px;
+  text-align: right;
+  background: #f0ede0;
+  border-top: 1px solid #d4d0c8;
+}
+
+.win-dialog-btn {
+  padding: 4px 18px;
+  font-size: 12px;
+  background: #ece9d8;
+  border: 2px outset #fff;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.win-dialog-btn:active {
+  border-style: inset;
+}
+
+/* RESPONSIVE MOBILE PER RANSOMWARE */
+@media (max-width: 768px) {
+  #infectionScreen {
+    padding: 14px;
+  }
+
+  .wc-terminal-box {
+    padding: 14px;
+  }
+
+  .wc-terminal-title {
+    font-size: 0.95rem;
+  }
+
+  .wc-terminal-log {
+    font-size: 0.78rem;
+    min-height: 140px;
+    line-height: 1.5;
+  }
+
+  #wannacryWindow {
+    width: 96vw;
+    max-width: 440px;
+    max-height: 94dvh;
+    top: 50%;
+    left: 50%;
+  }
+
+  .wc-body {
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+    max-height: 82dvh;
+    overflow-y: auto;
+  }
+
+  .wc-col-left {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .wc-lock-card {
+    width: 100%;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    border: 2px solid #e11d48;
+  }
+
+  .wc-lock-icon {
+    font-size: 38px;
+    margin-bottom: 0;
+  }
+
+  .wc-timer-card {
+    flex: 1;
+    min-width: 130px;
+    padding: 6px;
+  }
+
+  .wc-timer-digits {
+    font-size: 15px;
+    padding: 4px 0;
+  }
+
+  .wc-top-actions {
+    padding: 6px 8px;
+  }
+
+  .wc-top-title {
+    font-size: 13.5px;
+  }
+
+  .wc-text-area {
+    height: 120px;
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+
+  .wc-payment-box {
+    padding: 8px;
+  }
+
+  .wc-address-input {
+    font-size: 10.5px;
+    padding: 4px 6px;
+  }
+
+  .wc-btn-copy {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .wc-bottom-buttons {
+    gap: 8px;
+  }
+
+  .wc-action-btn {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 11.5px;
+  }
+}

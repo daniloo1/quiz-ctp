@@ -1,0 +1,359 @@
+/* ==========================================================================
+   RESPONSIVE BREAKPOINTS — DESKTOP WIDE, TABLET, MOBILE & ACCESSIBILITY
+   ========================================================================== */
+
+/* --- Posizionamento Desktop Chat Sidebar (Sinistra) --- */
+@media (min-width: 1380px) {
+  .chat-sidebar {
+    right: calc(50% + 380px);
+    left: auto;
+  }
+}
+
+@media (min-width: 1100px) and (max-width: 1379px) {
+  .chat-sidebar {
+    left: 14px;
+    right: auto;
+  }
+}
+
+@media (max-width: 1099px) {
+  .chat-sidebar {
+    left: 12px;
+    top: 64px;
+    height: 75vh;
+    max-height: 580px;
+    width: 320px;
+    max-width: calc(100vw - 24px);
+    z-index: 9995;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* --- Posizionamento Desktop Banner Verticale (Destra) --- */
+@media (min-width: 1080px) {
+  .ad-banner-vertical {
+    position: fixed;
+    top: 24px;
+    right: max(16px, calc((100vw - 720px) / 2 - 290px));
+    z-index: 80;
+  }
+}
+
+@media (min-width: 1320px) {
+  .ad-banner-vertical {
+    left: calc(50% + 380px);
+    right: auto;
+  }
+}
+
+@media (max-width: 1079px) {
+  .ad-banner-vertical {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    margin: 22px auto 0;
+  }
+}
+
+/* --- Tablet & Mobile Banner Orizzontale + Toasts --- */
+@media (max-width: 768px) {
+  .ad-banner-top {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 14px;
+    gap: 12px;
+    margin-bottom: 16px;
+    border-radius: 20px;
+  }
+  .ad-banner-top-media {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    max-height: 280px;
+    margin: 0 auto;
+  }
+  .ad-banner-top-title {
+    font-size: 1.05rem;
+    padding-right: 26px;
+  }
+  .ad-banner-top-desc {
+    font-size: 0.85rem;
+    margin: 3px 0 10px;
+  }
+  .ad-banner-pill-cta {
+    font-size: 0.78rem;
+    padding: 6px 14px;
+  }
+
+  .app-toast-container {
+    top: 14px;
+    bottom: auto;
+    left: 14px;
+    right: 14px;
+    align-items: center;
+  }
+
+  @keyframes toastSlideIn {
+    from { opacity: 0; transform: translateY(-16px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .app-toast-item.toast-leave {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+  }
+}
+
+/* --- Mobile (< 640px) --- */
+@media (max-width: 640px) {
+  body {
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  }
+
+  .app-shell {
+    max-width: 100%;
+  }
+
+  header.main-header {
+    padding: 10px 14px;
+    gap: 8px;
+    margin-bottom: 14px;
+    border-radius: 20px;
+  }
+
+  .header-top-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .brand-logo-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .brand-title {
+    font-size: 0.98rem;
+  }
+
+  .brand-badge {
+    display: none;
+  }
+
+  .brand-sub {
+    font-size: 0.68rem;
+  }
+
+  .btn-icon-header {
+    width: 32px;
+    height: 32px;
+    font-size: 0.88rem;
+  }
+
+  .btn-auth-header {
+    padding: 4px 10px 4px 6px;
+    font-size: 0.78rem;
+    min-height: 32px;
+  }
+
+  .user-avatar-pill {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
+
+  .nav-tabs-container {
+    padding-top: 6px;
+  }
+
+  .nav-tabs {
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .nav-tab {
+    padding: 7px 4px;
+    font-size: clamp(0.68rem, 2.9vw, 0.78rem);
+  }
+
+  .subjects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .subjects-toolbar {
+    gap: 8px;
+  }
+
+  .subjects-toolbar .btn-sm {
+    min-height: 42px;
+    flex: 1;
+  }
+
+  .config-grid {
+    gap: 18px;
+    margin: 22px 0;
+  }
+
+  .btn-choice {
+    min-height: 44px;
+    padding: 10px 8px;
+    font-size: 0.8rem;
+  }
+
+  .dashboard-metrics {
+    gap: 7px;
+  }
+
+  .dashboard-metric {
+    padding: 11px 8px;
+    text-align: center;
+    border-radius: 16px;
+  }
+
+  .dashboard-metric strong {
+    font-size: clamp(1rem, 5vw, 1.2rem);
+  }
+
+  .dashboard-metric span {
+    font-size: 0.68rem;
+    line-height: 1.25;
+    display: block;
+  }
+
+  .personal-tools {
+    padding: 14px;
+    margin-top: 18px;
+    border-radius: 18px;
+  }
+
+  .personal-tools-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .personal-tools-head > div {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .saved-note-row {
+    align-items: center;
+  }
+
+  .saved-note-delete {
+    padding: 8px 10px;
+  }
+
+  .saved-notes-pagination {
+    gap: 8px;
+  }
+
+  .saved-notes-pagination .btn-sm {
+    min-height: 40px;
+  }
+
+  .history-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .adv-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .question-title {
+    font-size: 1.18rem;
+    overflow-wrap: anywhere;
+  }
+
+  .question-header {
+    margin-bottom: 17px;
+  }
+
+  .quiz-topbar {
+    align-items: flex-start;
+  }
+
+  .quiz-topbar > div {
+    gap: 6px !important;
+  }
+
+  .quiz-timer {
+    font-size: 0.8rem;
+  }
+
+  .nav-dot {
+    min-width: 32px;
+    height: 32px;
+  }
+
+  .opt-card {
+    min-height: 54px;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .opt-text {
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+  }
+
+  .quiz-controls {
+    gap: 10px;
+  }
+
+  .quiz-controls .btn-secondary {
+    min-height: 44px;
+    padding: 10px 8px;
+    font-size: 0.84rem;
+  }
+
+  .review-filters {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .review-filters .btn-sm {
+    padding: 7px 10px;
+  }
+
+  .adv-filter-bar {
+    flex-direction: column;
+  }
+
+  .adv-filter-bar select,
+  .adv-filter-bar input {
+    width: 100%;
+    min-height: 44px;
+    min-width: 0;
+  }
+
+  .table-responsive {
+    padding: 4px 12px;
+  }
+
+  .modal-card,
+  .sync-modal-card {
+    border-radius: 20px;
+  }
+}
+
+/* --- Small Smartphones (< 380px) --- */
+@media (max-width: 380px) {
+  .brand-title { font-size: 0.94rem; }
+  .nav-tab { letter-spacing: -0.03em; }
+  .adv-kpi-grid { gap: 7px; }
+  .adv-kpi-card { padding: 12px 10px; }
+  .score-hero { padding-left: 4px; padding-right: 4px; }
+  .gauge-ring { width: 148px; height: 148px; }
+}
+
+/* --- Preferenze Accessibilità --- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
