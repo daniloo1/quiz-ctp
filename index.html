@@ -3939,12 +3939,12 @@ function initSupabase() {
         if (data && data.session && data.session.user) {
           handleAuthUserChange(data.session.user);
         } else {
-          checkInstructorPinState();
+          showAdminTab(false);
           updateAuthUI();
         }
       }).catch(err => {
         console.warn('Supabase getSession warning:', err);
-        checkInstructorPinState();
+        showAdminTab(false);
         updateAuthUI();
       });
 
@@ -3955,24 +3955,21 @@ function initSupabase() {
         } else {
           currentUser = null;
           currentProfile = null;
-          checkInstructorPinState();
+          showAdminTab(false);
           updateAuthUI();
         }
       });
     } else {
       console.warn('Supabase JS client non caricato (offline o CDN bloccata)');
-      checkInstructorPinState();
+      showAdminTab(false);
     }
   } catch (e) {
     console.error('Errore inizializzazione Supabase:', e);
-    checkInstructorPinState();
+    showAdminTab(false);
   }
 }
 
-function checkInstructorPinState() {
-  const isPinUnlocked = localStorage.getItem('aves_instructor_pin_unlocked') === 'true';
-  showAdminTab(isPinUnlocked);
-}
+
 
 async function handleAuthUserChange(user) {
   currentUser = user;
@@ -3997,8 +3994,7 @@ async function handleAuthUserChange(user) {
     console.warn('Recupero profilo Supabase:', err);
   }
 
-  const isPinUnlocked = localStorage.getItem('aves_instructor_pin_unlocked') === 'true';
-  const isAdmin = (currentProfile && currentProfile.role === 'admin') || isPinUnlocked;
+  const isAdmin = !!(currentProfile && currentProfile.role === 'admin');
   showAdminTab(isAdmin);
   updateAuthUI();
 }
@@ -4051,22 +4047,15 @@ function openAuthModal() {
     const pName = document.getElementById('authProfName');
     const pEmail = document.getElementById('authProfEmail');
     const pRole = document.getElementById('authProfRole');
-    const btnUnlock = document.getElementById('btnUnlockInstructor');
-
     if (pName) pName.textContent = currentProfile?.full_name || currentUser.email.split('@')[0];
     if (pEmail) pEmail.textContent = currentUser.email;
     
-    const isPinUnlocked = localStorage.getItem('aves_instructor_pin_unlocked') === 'true';
-    const isAdmin = (currentProfile && currentProfile.role === 'admin') || isPinUnlocked;
+    const isAdmin = !!(currentProfile && currentProfile.role === 'admin');
 
     if (pRole) {
       pRole.textContent = isAdmin ? '👨‍✈️ Istruttore / Admin' : 'Corsista AVES';
       pRole.style.background = isAdmin ? 'rgba(235, 94, 40, 0.15)' : 'var(--ok-soft)';
       pRole.style.color = isAdmin ? '#eb5e28' : 'var(--ok)';
-    }
-
-    if (btnUnlock) {
-      btnUnlock.style.display = isAdmin ? 'none' : 'block';
     }
     document.getElementById('authModalTitle').textContent = '👤 Il Tuo Profilo Cloud';
   } else {
@@ -4236,7 +4225,6 @@ async function handleSupabaseLogout() {
     } catch (e) {}
     currentUser = null;
     currentProfile = null;
-    localStorage.removeItem('aves_instructor_pin_unlocked');
     showAdminTab(false);
     updateAuthUI();
     closeAuthModal();
@@ -4244,26 +4232,6 @@ async function handleSupabaseLogout() {
   }
 }
 
-function openInstructorUnlockPrompt() {
-  const pin = prompt('Inserisci il Codice Segreto Istruttore per sbloccare la Dashboard Admin:');
-  if (!pin) return;
-
-  if (pin.trim().toLowerCase() === INSTRUCTOR_SECRET_PIN) {
-    localStorage.setItem('aves_instructor_pin_unlocked', 'true');
-    if (currentUser && sbClient) {
-      sbClient.from('profiles').update({ role: 'admin' }).eq('id', currentUser.id).then(() => {
-        if (currentProfile) currentProfile.role = 'admin';
-      }).catch(() => {});
-    }
-    showAdminTab(true);
-    updateAuthUI();
-    closeAuthModal();
-    alert('🎖️ Privilegi Istruttore Attivati! La scheda "👨‍✈️ Admin" è ora visibile in alto.');
-    switchTab('admin');
-  } else {
-    alert('❌ Codice Istruttore errato.');
-  }
-}
 
 // Sincronizzazione automatica al completamento del quiz
 async function syncSessionToSupabase(sessionStats, qStats) {
@@ -5106,9 +5074,6 @@ function checkUrlForSyncData() {
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <button class="btn-cta" onclick="syncLocalHistoryToCloud()" style="font-size: 0.85rem; padding: 10px;">
           ☁️ Carica Storico Precedente su Cloud
-        </button>
-        <button class="btn-secondary" onclick="openInstructorUnlockPrompt()" id="btnUnlockInstructor" style="font-size: 0.82rem; padding: 8px;">
-          🎖️ Sei Istruttore? Sblocca Pannello Admin
         </button>
         <button class="btn-reset-danger" onclick="handleSupabaseLogout()" style="font-size: 0.82rem; padding: 8px; width: 100%; margin-top: 4px;">
           🚪 Disconnetti Account
