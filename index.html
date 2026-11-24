@@ -1555,6 +1555,7 @@ kbd {
 }
 
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -1573,6 +1574,12 @@ kbd {
         <div class="brand-title">Quiz CTP AVES</div>
         <button class="btn-sm" id="themeToggleBtn" onclick="toggleTheme()" style="padding: 3px 8px; font-size: 0.72rem;">🌙 Scuro</button>
         <button class="btn-sm" id="adToggleBtn" onclick="toggleAds()" style="padding: 3px 8px; font-size: 0.72rem;" title="Disattiva o attiva tutti i banner pubblicitari">🚫 Togli Pubblicità</button>
+      
+        <button class="btn-sm" id="userAuthBtn" onclick="openAuthModal()" style="padding: 3px 10px; font-size: 0.75rem; background: var(--accent); color: var(--accent-ink); border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
+          <span id="userAuthIcon">👤</span>
+          <span id="userAuthLabel">Accedi</span>
+          <span id="cloudStatusDot" style="display:none; width:7px; height:7px; border-radius:50%; background:#2ed573;"></span>
+        </button>
       </div>
       <div class="brand-sub">280 domande · 4 opzioni · aggiornato 23 nov 2026</div>
     </div>
@@ -1581,6 +1588,7 @@ kbd {
       <button class="nav-tab" id="tabReading" onclick="switchTab('reading')">Lettura</button>
       <button class="nav-tab" id="tabHistory" onclick="switchTab('history')">Sessioni</button>
       <button class="nav-tab" id="tabAdvanced" onclick="switchTab('advanced')">Analisi Errori</button>
+      <button class="nav-tab" id="tabAdmin" onclick="switchTab('admin')" style="display: none; background: rgba(235, 94, 40, 0.12); color: #eb5e28; border-color: rgba(235, 94, 40, 0.4);">👨‍✈️ Admin</button>
     </div>
   </header>
 
@@ -1958,6 +1966,85 @@ kbd {
 
     <div id="advQuestionListContainer">
       <!-- Injected via JS -->
+    </div>
+  </div>
+
+  <!-- PANEL 6: ADMIN DASHBOARD (ISTRUTTORE) -->
+  <div class="panel" id="panelAdmin">
+    <div class="section-title">
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <span>👨‍✈️ Cruscotto Istruttore AVES</span>
+        <span style="background: rgba(235, 94, 40, 0.15); color: #eb5e28; font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; font-weight: 700;">PANNELLO RISERVATO</span>
+      </div>
+      <button class="btn-sm" onclick="loadAdminDashboardData()" style="padding: 4px 10px; font-size: 0.78rem;">
+        🔄 Aggiorna Dati
+      </button>
+    </div>
+
+    <!-- Admin KPI Cards -->
+    <div class="adv-kpi-grid">
+      <div class="adv-kpi-card">
+        <div class="adv-kpi-num" id="adminKpiTotalStudents" style="color: var(--accent);">0</div>
+        <div class="adv-kpi-lbl">Corsisti Iscritti</div>
+      </div>
+      <div class="adv-kpi-card">
+        <div class="adv-kpi-num" id="adminKpiTotalQuizzes" style="color: var(--ok);">0</div>
+        <div class="adv-kpi-lbl">Quiz Completati</div>
+      </div>
+      <div class="adv-kpi-card">
+        <div class="adv-kpi-num" id="adminKpiAvgScore" style="color: var(--warn);">0%</div>
+        <div class="adv-kpi-lbl">Media Classe</div>
+      </div>
+      <div class="adv-kpi-card">
+        <div class="adv-kpi-num" id="adminKpiPassRate" style="color: var(--bad);">0%</div>
+        <div class="adv-kpi-lbl">Tasso Idoneità (≥60%)</div>
+      </div>
+    </div>
+
+    <!-- Toolbar: Search & Export -->
+    <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;">
+      <input type="text" id="adminSearchStudent" placeholder="🔍 Cerca corsista per nome o email..." oninput="filterAdminStudentsTable()" style="flex: 1; min-width: 200px; padding: 8px 12px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 0.85rem;">
+      <button class="btn-cta" onclick="exportClassResultsCSV()" style="font-size: 0.82rem; padding: 8px 14px; white-space: nowrap;">
+        📥 Esporta Report CSV / Excel
+      </button>
+    </div>
+
+    <!-- Table of Students -->
+    <div style="background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; margin-bottom: 24px;">
+      <div style="padding: 12px 16px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;">
+        <span>📋 Elenco Corsisti e Rendimento</span>
+        <span id="adminStudentsCountBadge" style="font-size: 0.75rem; color: var(--muted);">0 corsisti trovati</span>
+      </div>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; text-align: left;">
+          <thead>
+            <tr style="background: var(--surface-2); border-bottom: 1px solid var(--line); color: var(--muted);">
+              <th style="padding: 10px 14px;">Corsista</th>
+              <th style="padding: 10px 14px;">Email</th>
+              <th style="padding: 10px 14px; text-align: center;">Quiz Svolti</th>
+              <th style="padding: 10px 14px; text-align: center;">Media %</th>
+              <th style="padding: 10px 14px; text-align: center;">Ultimo Test</th>
+              <th style="padding: 10px 14px; text-align: right;">Dettagli</th>
+            </tr>
+          </thead>
+          <tbody id="adminStudentsTableBody">
+            <tr>
+              <td colspan="6" style="padding: 24px; text-align: center; color: var(--muted);">Caricamento dati da Supabase...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Class-wide Error Ranking (Top Most Failed Questions) -->
+    <div style="background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden;">
+      <div style="padding: 12px 16px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center;">
+        <span>⚠️ Domande Più Sbagliate della Classe (Focus per le Lezioni)</span>
+        <span style="font-size: 0.75rem; color: var(--muted);">Errori aggregati corso</span>
+      </div>
+      <div id="adminClassErrorsContainer" style="padding: 14px;">
+        <div style="text-align: center; color: var(--muted); padding: 18px;">Caricamento statistiche errori...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -2624,6 +2711,7 @@ function pickOptionByIndex(idx) {
 
 // --- INIZIALIZZAZIONE ---
 function init() {
+  initSupabase();
   requestPersistentStorage();
   checkUrlForSyncData();
   sanitizeHistoryAndStats();
@@ -3171,6 +3259,7 @@ function endQuiz() {
 
   if (quizMode !== 'read') {
     saveSessionToHistory(lastSessionStats);
+    syncSessionToSupabase(lastSessionStats, qStats);
   }
   updateDashboard();
   renderResultsView(lastSessionStats);
@@ -3764,6 +3853,8 @@ function switchTab(tabName) {
   document.getElementById('panelResults').classList.remove('active');
   document.getElementById('panelHistory').classList.remove('active');
   document.getElementById('panelAdvanced').classList.remove('active');
+  const pAdmin = document.getElementById('panelAdmin');
+  if (pAdmin) pAdmin.classList.remove('active');
 
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
 
@@ -3789,6 +3880,11 @@ function switchTab(tabName) {
     document.getElementById('panelAdvanced').classList.add('active');
     document.getElementById('tabAdvanced').classList.add('active');
     loadAdvancedStatsView();
+  } else if (tabName === 'admin') {
+    if (pAdmin) pAdmin.classList.add('active');
+    const tAdmin = document.getElementById('tabAdmin');
+    if (tAdmin) tAdmin.classList.add('active');
+    loadAdminDashboardData();
   }
 }
 
@@ -3807,6 +3903,852 @@ if (document.readyState === 'loading') {
 }
 
 // ==========================================================================
+
+// ==========================================================================
+// INTEGRAZIONE SUPABASE: AUTH, PROFILI E CRUSCOTTO AMMINISTRATORE (AVES)
+// ==========================================================================
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+const SUPABASE_URL = 'https://wewouskslbvvyzsrxgpa.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Kp66Q27C3cF7MjdcKXb3Cg_NfOuXMzB';
+let sbClient = null;
+let currentUser = null;
+let currentProfile = null;
+let currentAuthTab = 'login';
+const INSTRUCTOR_SECRET_PIN = 'aves2026';
+
+let adminProfilesCache = [];
+let adminSessionsCache = [];
+let adminStatsCache = [];
+
+function initSupabase() {
+  try {
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      
+      // Controlla sessione salvata
+      sbClient.auth.getSession().then(({ data }) => {
+        if (data && data.session && data.session.user) {
+          handleAuthUserChange(data.session.user);
+        } else {
+          checkInstructorPinState();
+          updateAuthUI();
+        }
+      }).catch(err => {
+        console.warn('Supabase getSession warning:', err);
+        checkInstructorPinState();
+        updateAuthUI();
+      });
+
+      // Ascolta cambi di autenticazione in tempo reale
+      sbClient.auth.onAuthStateChange(async (event, session) => {
+        if (session && session.user) {
+          await handleAuthUserChange(session.user);
+        } else {
+          currentUser = null;
+          currentProfile = null;
+          checkInstructorPinState();
+          updateAuthUI();
+        }
+      });
+    } else {
+      console.warn('Supabase JS client non caricato (offline o CDN bloccata)');
+      checkInstructorPinState();
+    }
+  } catch (e) {
+    console.error('Errore inizializzazione Supabase:', e);
+    checkInstructorPinState();
+  }
+}
+
+function checkInstructorPinState() {
+  const isPinUnlocked = localStorage.getItem('aves_instructor_pin_unlocked') === 'true';
+  showAdminTab(isPinUnlocked);
+}
+
+async function handleAuthUserChange(user) {
+  currentUser = user;
+  try {
+    if (sbClient) {
+      const { data, error } = await sbClient.from('profiles').select('*').eq('id', user.id).maybeSingle();
+      if (data) {
+        currentProfile = data;
+      } else {
+        const fallbackName = user.user_metadata?.full_name || user.email.split('@')[0];
+        const newProf = {
+          id: user.id,
+          email: user.email,
+          full_name: fallbackName,
+          role: 'student'
+        };
+        await sbClient.from('profiles').upsert(newProf);
+        currentProfile = newProf;
+      }
+    }
+  } catch (err) {
+    console.warn('Recupero profilo Supabase:', err);
+  }
+
+  const isPinUnlocked = localStorage.getItem('aves_instructor_pin_unlocked') === 'true';
+  const isAdmin = (currentProfile && currentProfile.role === 'admin') || isPinUnlocked;
+  showAdminTab(isAdmin);
+  updateAuthUI();
+}
+
+function showAdminTab(visible) {
+  const tab = document.getElementById('tabAdmin');
+  if (tab) {
+    tab.style.display = visible ? 'inline-block' : 'none';
+  }
+}
+
+function updateAuthUI() {
+  const label = document.getElementById('userAuthLabel');
+  const dot = document.getElementById('cloudStatusDot');
+  const icon = document.getElementById('userAuthIcon');
+  const btn = document.getElementById('userAuthBtn');
+
+  if (!btn || !label) return;
+
+  if (currentUser) {
+    const dispName = currentProfile?.full_name || currentUser.email.split('@')[0];
+    label.textContent = dispName.length > 14 ? dispName.substring(0, 12) + '...' : dispName;
+    if (dot) dot.style.display = 'inline-block';
+    if (icon) icon.textContent = currentProfile?.role === 'admin' ? '👨‍✈️' : '👤';
+    btn.title = `Connesso come ${currentProfile?.full_name || currentUser.email} (${currentProfile?.role === 'admin' ? 'Istruttore' : 'Corsista'})`;
+    btn.style.background = currentProfile?.role === 'admin' ? '#eb5e28' : 'var(--accent)';
+  } else {
+    label.textContent = 'Accedi';
+    if (dot) dot.style.display = 'none';
+    if (icon) icon.textContent = '👤';
+    btn.title = 'Accedi o registrati per salvare i tuoi progressi sul cloud';
+    btn.style.background = 'var(--accent)';
+  }
+}
+
+function openAuthModal() {
+  const modal = document.getElementById('authModalOverlay');
+  if (!modal) return;
+  modal.classList.add('active');
+
+  const profileView = document.getElementById('authProfileView');
+  const formView = document.getElementById('authFormView');
+  const alertBox = document.getElementById('authAlertBox');
+  if (alertBox) alertBox.style.display = 'none';
+
+  if (currentUser) {
+    if (profileView) profileView.style.display = 'block';
+    if (formView) formView.style.display = 'none';
+
+    const pName = document.getElementById('authProfName');
+    const pEmail = document.getElementById('authProfEmail');
+    const pRole = document.getElementById('authProfRole');
+    const btnUnlock = document.getElementById('btnUnlockInstructor');
+
+    if (pName) pName.textContent = currentProfile?.full_name || currentUser.email.split('@')[0];
+    if (pEmail) pEmail.textContent = currentUser.email;
+    
+    const isPinUnlocked = localStorage.getItem('aves_instructor_pin_unlocked') === 'true';
+    const isAdmin = (currentProfile && currentProfile.role === 'admin') || isPinUnlocked;
+
+    if (pRole) {
+      pRole.textContent = isAdmin ? '👨‍✈️ Istruttore / Admin' : 'Corsista AVES';
+      pRole.style.background = isAdmin ? 'rgba(235, 94, 40, 0.15)' : 'var(--ok-soft)';
+      pRole.style.color = isAdmin ? '#eb5e28' : 'var(--ok)';
+    }
+
+    if (btnUnlock) {
+      btnUnlock.style.display = isAdmin ? 'none' : 'block';
+    }
+    document.getElementById('authModalTitle').textContent = '👤 Il Tuo Profilo Cloud';
+  } else {
+    if (profileView) profileView.style.display = 'none';
+    if (formView) formView.style.display = 'block';
+    switchAuthTab('login');
+    document.getElementById('authModalTitle').textContent = '👤 Accedi o Registrati';
+  }
+}
+
+function closeAuthModal(event) {
+  if (event && event.target && event.target.id !== 'authModalOverlay' && !event.target.classList.contains('ad-close-btn')) {
+    return;
+  }
+  const modal = document.getElementById('authModalOverlay');
+  if (modal) modal.classList.remove('active');
+}
+
+function switchAuthTab(tab) {
+  currentAuthTab = tab;
+  const tLogin = document.getElementById('authTabLogin');
+  const tReg = document.getElementById('authTabRegister');
+  const nameField = document.getElementById('authNameField');
+  const submitBtn = document.getElementById('authSubmitBtn');
+  const alertBox = document.getElementById('authAlertBox');
+  if (alertBox) alertBox.style.display = 'none';
+
+  if (tab === 'login') {
+    if (tLogin) {
+      tLogin.style.fontWeight = '700';
+      tLogin.style.color = 'var(--accent)';
+      tLogin.style.borderBottom = '2px solid var(--accent)';
+    }
+    if (tReg) {
+      tReg.style.fontWeight = '600';
+      tReg.style.color = 'var(--muted)';
+      tReg.style.borderBottom = '2px solid transparent';
+    }
+    if (nameField) nameField.style.display = 'none';
+    if (submitBtn) submitBtn.textContent = 'Accedi';
+  } else {
+    if (tReg) {
+      tReg.style.fontWeight = '700';
+      tReg.style.color = 'var(--accent)';
+      tReg.style.borderBottom = '2px solid var(--accent)';
+    }
+    if (tLogin) {
+      tLogin.style.fontWeight = '600';
+      tLogin.style.color = 'var(--muted)';
+      tLogin.style.borderBottom = '2px solid transparent';
+    }
+    if (nameField) nameField.style.display = 'block';
+    if (submitBtn) submitBtn.textContent = 'Crea Account Corsista';
+  }
+}
+
+function showAuthAlert(msg, type = 'error') {
+  const box = document.getElementById('authAlertBox');
+  if (!box) return;
+  box.style.display = 'block';
+  box.textContent = msg;
+  if (type === 'error') {
+    box.style.background = 'var(--bad-soft)';
+    box.style.color = 'var(--bad)';
+    box.style.border = '1px solid var(--bad)';
+  } else {
+    box.style.background = 'var(--ok-soft)';
+    box.style.color = 'var(--ok)';
+    box.style.border = '1px solid var(--ok)';
+  }
+}
+
+async function submitAuthForm() {
+  if (!sbClient) {
+    showAuthAlert('Servizio Supabase momentaneamente non raggiungibile. Verifica la tua connessione internet.', 'error');
+    return;
+  }
+
+  const email = (document.getElementById('authInputEmail')?.value || '').trim();
+  const password = (document.getElementById('authInputPassword')?.value || '').trim();
+  const name = (document.getElementById('authInputName')?.value || '').trim();
+  const submitBtn = document.getElementById('authSubmitBtn');
+
+  if (!email || !email.includes('@')) {
+    showAuthAlert('Inserisci un indirizzo email valido.', 'error');
+    return;
+  }
+  if (!password || password.length < 6) {
+    showAuthAlert('La password deve contenere almeno 6 caratteri.', 'error');
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Attendere...';
+  }
+
+  try {
+    if (currentAuthTab === 'login') {
+      const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        let msg = error.message;
+        if (msg.includes('Invalid login credentials')) {
+          msg = 'Email o password errati. Riprova o registrati se è il tuo primo accesso.';
+        }
+        showAuthAlert(msg, 'error');
+      } else {
+        closeAuthModal();
+        alert(`✓ Bentornato/a! Accesso effettuato con successo.`);
+      }
+    } else {
+      if (!name) {
+        showAuthAlert('Inserisci Nome e Cognome per il tuo attestato e profilo.', 'error');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Crea Account Corsista';
+        }
+        return;
+      }
+
+      const { data, error } = await sbClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name }
+        }
+      });
+
+      if (error) {
+        showAuthAlert(error.message, 'error');
+      } else {
+        if (data && data.user) {
+          try {
+            await sbClient.from('profiles').upsert({
+              id: data.user.id,
+              email: data.user.email,
+              full_name: name,
+              role: 'student'
+            });
+          } catch (e) {}
+        }
+
+        if (data && data.session) {
+          closeAuthModal();
+          alert(`✓ Account creato e accesso eseguito! Benvenuto/a, ${name}.`);
+        } else {
+          showAuthAlert("Registrazione completata! Controlla la tua casella email per verificare l'account prima di accedere.", "success");
+        }
+      }
+    }
+  } catch (err) {
+    showAuthAlert('Errore di connessione: ' + err.message, 'error');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = currentAuthTab === 'login' ? 'Accedi' : 'Crea Account Corsista';
+    }
+  }
+}
+
+async function handleSupabaseLogout() {
+  if (confirm('Sei sicuro di voler uscire dal tuo account?')) {
+    try {
+      if (sbClient) {
+        await sbClient.auth.signOut();
+      }
+    } catch (e) {}
+    currentUser = null;
+    currentProfile = null;
+    localStorage.removeItem('aves_instructor_pin_unlocked');
+    showAdminTab(false);
+    updateAuthUI();
+    closeAuthModal();
+    alert('Disconnessione effettuata.');
+  }
+}
+
+function openInstructorUnlockPrompt() {
+  const pin = prompt('Inserisci il Codice Segreto Istruttore per sbloccare la Dashboard Admin:');
+  if (!pin) return;
+
+  if (pin.trim().toLowerCase() === INSTRUCTOR_SECRET_PIN) {
+    localStorage.setItem('aves_instructor_pin_unlocked', 'true');
+    if (currentUser && sbClient) {
+      sbClient.from('profiles').update({ role: 'admin' }).eq('id', currentUser.id).then(() => {
+        if (currentProfile) currentProfile.role = 'admin';
+      }).catch(() => {});
+    }
+    showAdminTab(true);
+    updateAuthUI();
+    closeAuthModal();
+    alert('🎖️ Privilegi Istruttore Attivati! La scheda "👨‍✈️ Admin" è ora visibile in alto.');
+    switchTab('admin');
+  } else {
+    alert('❌ Codice Istruttore errato.');
+  }
+}
+
+// Sincronizzazione automatica al completamento del quiz
+async function syncSessionToSupabase(sessionStats, qStats) {
+  if (!sbClient || !currentUser) return;
+
+  try {
+    const studentName = currentProfile?.full_name || currentUser.user_metadata?.full_name || currentUser.email.split('@')[0];
+    
+    // Inserisce la sessione
+    await sbClient.from('quiz_sessions').insert({
+      user_id: currentUser.id,
+      user_name: studentName,
+      score_pct: sessionStats.scorePct,
+      correct: sessionStats.correct,
+      total: sessionStats.total,
+      is_passed: sessionStats.isPassed,
+      duration_sec: sessionStats.durationSec || 0,
+      subject_stats: sessionStats.subjectStats || {}
+    });
+
+    // Inserisce/aggiorna le domande affrontate
+    const rows = [];
+    if (sessionStats.questions && Array.isArray(sessionStats.questions)) {
+      sessionStats.questions.forEach((q, idx) => {
+        const chosen = sessionStats.answers[idx];
+        if (chosen !== undefined) {
+          const st = qStats[q.id] || { answered: 1, correct: (chosen === q.corretta ? 1 : 0), wrong: (chosen === q.corretta ? 0 : 1) };
+          rows.push({
+            user_id: currentUser.id,
+            question_id: q.id,
+            answered: st.answered || 1,
+            correct: st.correct || 0,
+            wrong: st.wrong || 0,
+            last_result: chosen === q.corretta ? 'correct' : 'wrong',
+            updated_at: new Date().toISOString()
+          });
+        }
+      });
+    }
+
+    if (rows.length > 0) {
+      await sbClient.from('user_question_stats').upsert(rows);
+    }
+  } catch (err) {
+    console.warn('Errore sincronizzazione quiz su cloud:', err);
+  }
+}
+
+// Sincronizza lo storico pregresso locale sul cloud
+async function syncLocalHistoryToCloud() {
+  if (!sbClient || !currentUser) {
+    alert('Devi essere autenticato per caricare lo storico sul cloud.');
+    return;
+  }
+
+  const hist = getHistory();
+  const qStats = getQuestionStats();
+
+  if (hist.length === 0 && Object.keys(qStats).length === 0) {
+    alert('Nessun dato locale trovato da sincronizzare.');
+    return;
+  }
+
+  const btn = event?.target;
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Caricamento sul Cloud in corso...';
+  }
+
+  try {
+    const studentName = currentProfile?.full_name || currentUser.email.split('@')[0];
+    
+    // 1. Carica le sessioni passate
+    let uploadedSessions = 0;
+    for (const s of hist) {
+      await sbClient.from('quiz_sessions').insert({
+        user_id: currentUser.id,
+        user_name: studentName,
+        score_pct: s.scorePct,
+        correct: s.correct,
+        total: s.total,
+        is_passed: s.isPassed,
+        duration_sec: s.durationSec || 0,
+        subject_stats: s.subjectStats || {},
+        created_at: s.date || new Date().toISOString()
+      });
+      uploadedSessions++;
+    }
+
+    // 2. Carica le statistiche per domanda
+    const qRows = [];
+    Object.keys(qStats).forEach(qid => {
+      const st = qStats[qid];
+      if (st && st.answered > 0) {
+        qRows.push({
+          user_id: currentUser.id,
+          question_id: parseInt(qid, 10),
+          answered: st.answered,
+          correct: st.correct,
+          wrong: st.wrong,
+          last_result: st.lastResult,
+          updated_at: st.lastDate || new Date().toISOString()
+        });
+      }
+    });
+
+    if (qRows.length > 0) {
+      // Upsert in chunks di 50
+      for (let i = 0; i < qRows.length; i += 50) {
+        const chunk = qRows.slice(i, i + 50);
+        await sbClient.from('user_question_stats').upsert(chunk);
+      }
+    }
+
+    alert(`✓ Sincronizzazione completata con successo!
+
+${uploadedSessions} sessioni e ${qRows.length} statistiche caricate sul database centrale.`);
+  } catch (err) {
+    alert('Errore durante la sincronizzazione: ' + err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '☁️ Carica Storico Precedente su Cloud';
+    }
+  }
+}
+
+// ==========================================================================
+// PANNELLO ISTRUTTORE (ADMIN DASHBOARD)
+// ==========================================================================
+
+async function loadAdminDashboardData() {
+  if (!sbClient) {
+    alert('Connessione a Supabase non disponibile.');
+    return;
+  }
+
+  const tbody = document.getElementById('adminStudentsTableBody');
+  const errBox = document.getElementById('adminClassErrorsContainer');
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--muted);">Caricamento dati dal server Supabase in corso...</td></tr>`;
+  }
+  if (errBox) {
+    errBox.innerHTML = `<div style="text-align: center; color: var(--muted); padding: 18px;">Analisi statistiche errori in corso...</div>`;
+  }
+
+  try {
+    // 1. Carica Profili, Sessioni e Question Stats
+    const [pRes, sRes, qRes] = await Promise.all([
+      sbClient.from('profiles').select('*').order('created_at', { ascending: false }),
+      sbClient.from('quiz_sessions').select('*').order('created_at', { ascending: false }),
+      sbClient.from('user_question_stats').select('*')
+    ]);
+
+    adminProfilesCache = pRes.data || [];
+    adminSessionsCache = sRes.data || [];
+    adminStatsCache = qRes.data || [];
+
+    // Calcolo KPI Generali
+    const totalStudents = adminProfilesCache.length;
+    const totalQuizzes = adminSessionsCache.length;
+    let avgScore = 0;
+    let passRate = 0;
+
+    if (totalQuizzes > 0) {
+      const sumScores = adminSessionsCache.reduce((acc, curr) => acc + (curr.score_pct || 0), 0);
+      avgScore = Math.round(sumScores / totalQuizzes);
+      const passedCount = adminSessionsCache.filter(s => s.is_passed).length;
+      passRate = Math.round((passedCount / totalQuizzes) * 100);
+    }
+
+    const kpiStudents = document.getElementById('adminKpiTotalStudents');
+    const kpiQuizzes = document.getElementById('adminKpiTotalQuizzes');
+    const kpiAvg = document.getElementById('adminKpiAvgScore');
+    const kpiPass = document.getElementById('adminKpiPassRate');
+
+    if (kpiStudents) kpiStudents.textContent = totalStudents;
+    if (kpiQuizzes) kpiQuizzes.textContent = totalQuizzes;
+    if (kpiAvg) kpiAvg.textContent = `${avgScore}%`;
+    if (kpiPass) kpiPass.textContent = `${passRate}%`;
+
+    // Render Tabella Corsisti
+    renderAdminStudentsTable(adminProfilesCache, adminSessionsCache);
+
+    // Render Top Errori Classe
+    renderAdminClassErrors(adminStatsCache);
+
+  } catch (err) {
+    console.error('Errore caricamento dashboard admin:', err);
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--bad);">Errore nel recupero dati: ${err.message}</td></tr>`;
+    }
+  }
+}
+
+function renderAdminStudentsTable(profiles, sessions) {
+  const tbody = document.getElementById('adminStudentsTableBody');
+  const countBadge = document.getElementById('adminStudentsCountBadge');
+  if (!tbody) return;
+
+  if (countBadge) {
+    countBadge.textContent = `${profiles.length} corsisti registrati`;
+  }
+
+  if (profiles.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--muted);">Nessun corsista registrato al momento.</td></tr>`;
+    return;
+  }
+
+  let html = '';
+  profiles.forEach(p => {
+    const userSessions = sessions.filter(s => s.user_id === p.id);
+    const quizCount = userSessions.length;
+    let userAvg = '-';
+    let lastDateStr = 'Nessun test';
+
+    if (quizCount > 0) {
+      const sum = userSessions.reduce((acc, s) => acc + (s.score_pct || 0), 0);
+      userAvg = `${Math.round(sum / quizCount)}%`;
+      const lastSession = userSessions[0];
+      if (lastSession.created_at) {
+        const d = new Date(lastSession.created_at);
+        lastDateStr = d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      }
+    }
+
+    const roleBadge = p.role === 'admin' ? '<span style="font-size:0.68rem; background:rgba(235,94,40,0.15); color:#eb5e28; padding:2px 6px; border-radius:8px; margin-left:6px; font-weight:700;">ADMIN</span>' : '';
+
+    html += `
+      <tr style="border-bottom: 1px solid var(--line);">
+        <td style="padding: 12px 14px; font-weight: 600; color: var(--ink);">
+          ${escapeHtml(p.full_name || 'Anonimo')} ${roleBadge}
+        </td>
+        <td style="padding: 12px 14px; color: var(--muted); font-size: 0.8rem;">
+          ${escapeHtml(p.email || '-')}
+        </td>
+        <td style="padding: 12px 14px; text-align: center; font-weight: 600;">
+          ${quizCount}
+        </td>
+        <td style="padding: 12px 14px; text-align: center; font-weight: 700; color: ${userAvg !== '-' && parseInt(userAvg) >= 60 ? 'var(--ok)' : (userAvg === '-' ? 'var(--muted)' : 'var(--bad)')};">
+          ${userAvg}
+        </td>
+        <td style="padding: 12px 14px; text-align: center; font-size: 0.8rem; color: var(--muted);">
+          ${lastDateStr}
+        </td>
+        <td style="padding: 12px 14px; text-align: right;">
+          <button class="btn-sm" onclick="openAdminStudentDetail('${p.id}')" style="padding: 4px 8px; font-size: 0.76rem;">
+            Dettagli 👁️
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+}
+
+function filterAdminStudentsTable() {
+  const query = (document.getElementById('adminSearchStudent')?.value || '').toLowerCase().trim();
+  if (!query) {
+    renderAdminStudentsTable(adminProfilesCache, adminSessionsCache);
+    return;
+  }
+
+  const filtered = adminProfilesCache.filter(p => {
+    const name = (p.full_name || '').toLowerCase();
+    const email = (p.email || '').toLowerCase();
+    return name.includes(query) || email.includes(query);
+  });
+
+  renderAdminStudentsTable(filtered, adminSessionsCache);
+}
+
+function renderAdminClassErrors(stats) {
+  const container = document.getElementById('adminClassErrorsContainer');
+  if (!container) return;
+
+  if (stats.length === 0) {
+    container.innerHTML = `<div style="text-align: center; color: var(--muted); padding: 18px;">Nessun errore ancora registrato nei quiz.</div>`;
+    return;
+  }
+
+  // Raggruppa errori per question_id
+  const errorMap = {};
+  stats.forEach(st => {
+    const qid = st.question_id;
+    if (!errorMap[qid]) {
+      errorMap[qid] = { question_id: qid, wrong: 0, answered: 0 };
+    }
+    errorMap[qid].wrong += (st.wrong || 0);
+    errorMap[qid].answered += (st.answered || 0);
+  });
+
+  // Ordina per numero decrescente di errori
+  const sortedErrors = Object.values(errorMap)
+    .filter(item => item.wrong > 0)
+    .sort((a, b) => b.wrong - a.wrong)
+    .slice(0, 15);
+
+  if (sortedErrors.length === 0) {
+    container.innerHTML = `<div style="text-align: center; color: var(--ok); padding: 18px;">Ottimo! Nessuna domanda presenta errori aggregati rilevanti.</div>`;
+    return;
+  }
+
+  let html = `<div style="display: flex; flex-direction: column; gap: 10px;">`;
+  sortedErrors.forEach((item, index) => {
+    const qObj = rawQuestions.find(q => q.id === item.question_id);
+    const qText = qObj ? qObj.domanda : `Domanda ID #${item.question_id}`;
+    const qSubject = qObj ? qObj.materia : 'Generale';
+    const correctOpt = qObj ? qObj.opzioni[qObj.corretta] : 'N/D';
+
+    html += `
+      <div style="background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-weight: 800; font-size: 0.85rem; color: var(--bad);">#${index + 1}</span>
+            <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 8px; background: rgba(39, 72, 240, 0.08); color: var(--accent); font-weight: 700;">${escapeHtml(qSubject)}</span>
+            <span style="font-size: 0.72rem; color: var(--muted);">ID #${item.question_id}</span>
+          </div>
+          <span style="font-size: 0.78rem; font-weight: 700; color: var(--bad); background: var(--bad-soft); padding: 2px 8px; border-radius: 10px;">
+            ⚠️ Sbagliata ${item.wrong} volt${item.wrong === 1 ? 'a' : 'e'}
+          </span>
+        </div>
+        <div style="font-size: 0.86rem; font-weight: 600; color: var(--ink); margin-bottom: 8px; line-height: 1.4;">
+          ${escapeHtml(qText)}
+        </div>
+        <div style="font-size: 0.78rem; color: var(--ok); background: var(--surface); padding: 6px 10px; border-radius: var(--r-sm); border: 1px solid var(--line);">
+          <strong>Risposta Esatta:</strong> ${escapeHtml(correctOpt)}
+        </div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+
+  container.innerHTML = html;
+}
+
+function openAdminStudentDetail(studentId) {
+  const profile = adminProfilesCache.find(p => p.id === studentId);
+  if (!profile) return;
+
+  const userSessions = adminSessionsCache.filter(s => s.user_id === studentId);
+  const modal = document.getElementById('adminStudentDetailModal');
+  if (!modal) return;
+
+  document.getElementById('detailModalStudentName').textContent = profile.full_name || 'Corsista';
+  document.getElementById('detailModalStudentEmail').textContent = profile.email || 'Email non disponibile';
+
+  const quizCount = userSessions.length;
+  let avgScore = 0;
+  let passRate = 0;
+  if (quizCount > 0) {
+    const sum = userSessions.reduce((acc, s) => acc + (s.score_pct || 0), 0);
+    avgScore = Math.round(sum / quizCount);
+    const passed = userSessions.filter(s => s.is_passed).length;
+    passRate = Math.round((passed / quizCount) * 100);
+  }
+
+  document.getElementById('detailKpiQuizzes').textContent = quizCount;
+  document.getElementById('detailKpiAvg').textContent = `${avgScore}%`;
+  document.getElementById('detailKpiPassRate').textContent = `${passRate}%`;
+
+  // Aggrega per materia
+  const subStats = {};
+  userSessions.forEach(s => {
+    if (s.subject_stats && typeof s.subject_stats === 'object') {
+      Object.keys(s.subject_stats).forEach(sub => {
+        if (!subStats[sub]) subStats[sub] = { total: 0, correct: 0 };
+        subStats[sub].total += (s.subject_stats[sub].total || 0);
+        subStats[sub].correct += (s.subject_stats[sub].correct || 0);
+      });
+    }
+  });
+
+  const progContainer = document.getElementById('detailSubjectProgressContainer');
+  if (progContainer) {
+    if (Object.keys(subStats).length === 0) {
+      progContainer.innerHTML = `<div style="font-size: 0.8rem; color: var(--muted);">Nessun dettaglio per materia registrato.</div>`;
+    } else {
+      let phtml = '';
+      Object.keys(subStats).forEach(sub => {
+        const item = subStats[sub];
+        const pct = item.total > 0 ? Math.round((item.correct / item.total) * 100) : 0;
+        phtml += `
+          <div style="margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 2px;">
+              <span>${escapeHtml(sub)}</span>
+              <span>${pct}% (${item.correct}/${item.total})</span>
+            </div>
+            <div style="background: var(--surface-2); height: 6px; border-radius: 3px; overflow: hidden;">
+              <div style="background: ${pct >= 60 ? 'var(--ok)' : 'var(--bad)'}; width: ${pct}%; height: 100%;"></div>
+            </div>
+          </div>
+        `;
+      });
+      progContainer.innerHTML = phtml;
+    }
+  }
+
+  // Ultime sessioni
+  const sessContainer = document.getElementById('detailRecentSessionsContainer');
+  if (sessContainer) {
+    if (userSessions.length === 0) {
+      sessContainer.innerHTML = `<div style="font-size: 0.8rem; color: var(--muted); padding: 8px;">Nessuna sessione completata.</div>`;
+    } else {
+      let shtml = `<div style="display: flex; flex-direction: column; gap: 6px;">`;
+      userSessions.slice(0, 10).forEach(s => {
+        const d = s.created_at ? new Date(s.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'Data sconosciuta';
+        shtml += `
+          <div style="background: var(--surface-2); padding: 8px 10px; border-radius: var(--r-sm); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+            <div>
+              <span style="font-weight: 700; color: ${s.is_passed ? 'var(--ok)' : 'var(--bad)'};">${s.is_passed ? '✓ IDONEO' : '✕ NON IDONEO'}</span>
+              <span style="color: var(--muted); margin-left: 8px;">${d}</span>
+            </div>
+            <div style="font-weight: 800; font-size: 0.85rem;">
+              ${s.score_pct}% (${s.correct}/${s.total})
+            </div>
+          </div>
+        `;
+      });
+      shtml += `</div>`;
+      sessContainer.innerHTML = shtml;
+    }
+  }
+
+  modal.classList.add('active');
+}
+
+function closeAdminDetailModal(event) {
+  if (event && event.target && event.target.id !== 'adminStudentDetailModal' && !event.target.classList.contains('ad-close-btn') && !event.target.classList.contains('btn-secondary')) {
+    return;
+  }
+  const modal = document.getElementById('adminStudentDetailModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function exportClassResultsCSV() {
+  if (!adminProfilesCache || adminProfilesCache.length === 0) {
+    alert('Nessun dato corsisti da esportare. Premi prima "Aggiorna Dati".');
+    return;
+  }
+
+  let csvContent = 'Corsista;Email;Ruolo;Quiz Totali;Media Percentuale;Idoneita Percentuale;Data Ultimo Test\n';
+
+  adminProfilesCache.forEach(p => {
+    const userSessions = adminSessionsCache.filter(s => s.user_id === p.id);
+    const quizCount = userSessions.length;
+    let avgScore = '0';
+    let passRate = '0';
+    let lastDate = 'Nessun test';
+
+    if (quizCount > 0) {
+      const sum = userSessions.reduce((acc, s) => acc + (s.score_pct || 0), 0);
+      avgScore = Math.round(sum / quizCount).toString();
+      const passed = userSessions.filter(s => s.is_passed).length;
+      passRate = Math.round((passed / quizCount) * 100).toString();
+      if (userSessions[0].created_at) {
+        lastDate = new Date(userSessions[0].created_at).toLocaleString('it-IT');
+      }
+    }
+
+    const row = [
+      `"${(p.full_name || 'Anonimo').replace(/"/g, '""')}"`,
+      `"${(p.email || '').replace(/"/g, '""')}"`,
+      `"${p.role || 'student'}"`,
+      quizCount,
+      `"${avgScore}%"`,
+      `"${passRate}%"`,
+      `"${lastDate}"`
+    ];
+    csvContent += row.join(';') + '\n';
+  });
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  const now = new Date().toISOString().slice(0, 10);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `Report_Corso_AVES_Quiz_${now}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+
 // SISTEMA PERSISTENZA, RECUPERO CRASH E SINCRONIZZAZIONE QR (ZERO-SERVER)
 // ==========================================================================
 
@@ -4133,6 +5075,116 @@ function checkUrlForSyncData() {
       <button class="btn-secondary" onclick="closeQrSyncModal()" style="flex: 1; font-size: 0.82rem;">
         Chiudi
       </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODALE ACCESSO / REGISTRAZIONE / PROFILO CORSISTA -->
+<div class="sync-modal-overlay" id="authModalOverlay" onclick="closeAuthModal(event)">
+  <div class="sync-modal-card" onclick="event.stopPropagation()" style="max-width: 460px; text-align: left;">
+    <div class="sync-modal-header">
+      <div class="sync-modal-title" id="authModalTitle">👤 Accedi al Profilo</div>
+      <button class="ad-close-btn" onclick="closeAuthModal()" style="position:static;">✕</button>
+    </div>
+
+    <!-- Stato Loggato (Profilo Attivo) -->
+    <div id="authProfileView" style="display: none;">
+      <div style="background: var(--surface-2); border-radius: var(--r-md); padding: 14px; margin-bottom: 14px;">
+        <div style="font-weight: 750; font-size: 1.1rem; color: var(--ink);" id="authProfName">Mario Rossi</div>
+        <div style="font-size: 0.82rem; color: var(--muted); margin-top: 2px;" id="authProfEmail">mario@example.com</div>
+        <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; font-weight: 700; background: var(--ok-soft); color: var(--ok);" id="authProfRole">Corsista</span>
+          <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; background: rgba(39, 72, 240, 0.08); color: var(--accent);">🟢 Cloud Sincronizzato</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px; font-size: 0.84rem; color: var(--ink);">
+        <p style="margin: 0 0 6px 0;">Le tue simulazioni ed errori vengono salvati automaticamente sul cloud. Puoi cambiare dispositivo senza perdere alcun dato!</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn-cta" onclick="syncLocalHistoryToCloud()" style="font-size: 0.85rem; padding: 10px;">
+          ☁️ Carica Storico Precedente su Cloud
+        </button>
+        <button class="btn-secondary" onclick="openInstructorUnlockPrompt()" id="btnUnlockInstructor" style="font-size: 0.82rem; padding: 8px;">
+          🎖️ Sei Istruttore? Sblocca Pannello Admin
+        </button>
+        <button class="btn-reset-danger" onclick="handleSupabaseLogout()" style="font-size: 0.82rem; padding: 8px; width: 100%; margin-top: 4px;">
+          🚪 Disconnetti Account
+        </button>
+      </div>
+    </div>
+
+    <!-- Form di Login / Registrazione -->
+    <div id="authFormView">
+      <div style="display: flex; border-bottom: 1px solid var(--line); margin-bottom: 16px;">
+        <button id="authTabLogin" onclick="switchAuthTab('login')" style="flex: 1; padding: 10px; background: transparent; border: none; border-bottom: 2px solid var(--accent); font-weight: 700; color: var(--accent); cursor: pointer; font-size: 0.9rem;">Accedi</button>
+        <button id="authTabRegister" onclick="switchAuthTab('register')" style="flex: 1; padding: 10px; background: transparent; border: none; border-bottom: 2px solid transparent; font-weight: 600; color: var(--muted); cursor: pointer; font-size: 0.9rem;">Registrati</button>
+      </div>
+
+      <div id="authAlertBox" style="display: none; padding: 10px 12px; border-radius: var(--r-sm); margin-bottom: 12px; font-size: 0.82rem;"></div>
+
+      <div id="authNameField" style="display: none; margin-bottom: 12px;">
+        <label style="display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px; color: var(--ink);">Nome e Cognome Allievo:</label>
+        <input type="text" id="authInputName" placeholder="es. Mario Rossi" style="width: 100%; padding: 9px 12px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 0.88rem;">
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <label style="display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px; color: var(--ink);">Indirizzo Email:</label>
+        <input type="email" id="authInputEmail" placeholder="nome@allievo.it" style="width: 100%; padding: 9px 12px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 0.88rem;">
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px; color: var(--ink);">Password:</label>
+        <input type="password" id="authInputPassword" placeholder="Almeno 6 caratteri" style="width: 100%; padding: 9px 12px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 0.88rem;">
+      </div>
+
+      <button class="btn-cta" id="authSubmitBtn" onclick="submitAuthForm()" style="width: 100%; padding: 10px; font-size: 0.9rem;">
+        Accedi
+      </button>
+
+      <div style="margin-top: 14px; text-align: center; font-size: 0.78rem; color: var(--muted);">
+        Accesso sicuro tramite Supabase Cloud · I tuoi dati rimangono riservati
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE DETTAGLIO SINGOLO ALLIEVO (ADMIN VIEW) -->
+<div class="sync-modal-overlay" id="adminStudentDetailModal" onclick="closeAdminDetailModal(event)">
+  <div class="sync-modal-card" onclick="event.stopPropagation()" style="max-width: 600px; text-align: left;">
+    <div class="sync-modal-header">
+      <div>
+        <div class="sync-modal-title" id="detailModalStudentName">Dettaglio Allievo</div>
+        <div style="font-size: 0.8rem; color: var(--muted);" id="detailModalStudentEmail">email@allievo.it</div>
+      </div>
+      <button class="ad-close-btn" onclick="closeAdminDetailModal()" style="position:static;">✕</button>
+    </div>
+    
+    <div class="adv-kpi-grid" style="margin-bottom: 14px;">
+      <div class="adv-kpi-card">
+        <div class="adv-kpi-num" id="detailKpiQuizzes" style="color: var(--accent);">0</div>
+        <div class="adv-kpi-lbl">Quiz Eseguiti</div>
+      </div>
+      <div class="adv-kpi-card">
+        <div class="adv-kpi-num" id="detailKpiAvg" style="color: var(--ok);">0%</div>
+        <div class="adv-kpi-lbl">Media Punteggio</div>
+      </div>
+      <div class="adv-kpi-card">
+        <div class="adv-kpi-num" id="detailKpiPassRate" style="color: var(--warn);">0%</div>
+        <div class="adv-kpi-lbl">Idoneità</div>
+      </div>
+    </div>
+
+    <div style="font-weight: 700; font-size: 0.88rem; margin-bottom: 8px; color: var(--ink);">Rendimento per Materia:</div>
+    <div id="detailSubjectProgressContainer" style="margin-bottom: 16px;"></div>
+
+    <div style="font-weight: 700; font-size: 0.88rem; margin-bottom: 8px; color: var(--ink);">Ultime Sessioni Svolte:</div>
+    <div id="detailRecentSessionsContainer" style="max-height: 200px; overflow-y: auto;"></div>
+
+    <div style="margin-top: 16px; text-align: right;">
+      <button class="btn-secondary" onclick="closeAdminDetailModal()" style="padding: 6px 16px; font-size: 0.82rem;">Chiudi</button>
     </div>
   </div>
 </div>
