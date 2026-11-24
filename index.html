@@ -1550,11 +1550,118 @@ kbd {
   gap: 4px;
 }
 .chat-online-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #2ed573;
+  box-shadow: 0 0 6px rgba(46, 213, 115, 0.7);
   display: inline-block;
+  flex-shrink: 0;
+}
+.chat-online-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(46, 213, 115, 0.12);
+  border: 1px solid rgba(46, 213, 115, 0.3);
+  color: #2ed573;
+  font-size: 0.70rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  margin-top: 2px;
+}
+.chat-online-badge-btn:hover {
+  background: rgba(46, 213, 115, 0.22);
+  border-color: rgba(46, 213, 115, 0.55);
+  transform: translateY(-1px);
+}
+.chat-online-chevron {
+  font-size: 0.65rem;
+  color: var(--muted);
+  transition: transform 0.2s ease;
+  display: inline-block;
+  line-height: 1;
+}
+.chat-online-badge-btn.open .chat-online-chevron {
+  transform: rotate(180deg);
+}
+.chat-online-dropdown {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-bottom: 2px solid var(--line);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  z-index: 95;
+  padding: 10px 12px;
+  animation: slideDownChatOnline 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideDownChatOnline {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chat-online-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.chat-online-dropdown-title {
+  font-size: 0.82rem;
+  font-weight: 750;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chat-online-users-list {
+  max-height: 210px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 2px;
+}
+.chat-online-user-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  font-size: 0.80rem;
+}
+.chat-online-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.chat-online-user-name {
+  font-weight: 650;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.chat-online-user-email {
+  font-size: 0.68rem;
+  color: var(--muted);
+  line-height: 1.1;
+  margin-top: 1px;
 }
 .chat-ctrl-btn {
   background: transparent;
@@ -3282,14 +3389,6 @@ kbd {
     </div>
 
 
-    <div class="sync-btn-container">
-      <button class="btn-sync-action" onclick="openQrSyncModal()">
-        📱 Inquadra QR per sincronizzare su Telefono
-      </button>
-      <button class="btn-sync-action" onclick="copySyncShareLink()">
-        🔗 Copia Link di Sincronizzazione
-      </button>
-    </div>
 
     <div class="section-title" style="margin-top: 18px;">
       <span>Prestazioni Storiche per Materia</span>
@@ -3544,12 +3643,30 @@ kbd {
       <span style="font-size: 1.15rem;">💬</span>
       <div>
         <div class="chat-title">Chat di Gruppo</div>
-        <div class="chat-status"><span class="chat-online-dot"></span> In tempo reale</div>
+        <div class="chat-online-badge-btn" id="chatOnlineBadgeBtn" onclick="toggleChatOnlineUsersBanner(event)" title="Clicca per visualizzare gli account online adesso" role="button" tabindex="0">
+          <span class="chat-online-dot"></span>
+          <span id="chatOnlineCountText">1 online</span>
+          <span class="chat-online-chevron">▾</span>
+        </div>
       </div>
     </div>
     <div style="display:flex; align-items:center; gap:4px;">
       <button class="chat-ctrl-btn" id="btnAdminClearChat" onclick="confirmClearClassChat()" title="Cancella cronologia messaggi (Riservato Admin)" style="display:none; color:#ff4757; border-color:rgba(255,71,87,0.3); font-size:0.75rem; padding:3px 6px;">🗑️ Svuota</button>
       <button class="chat-ctrl-btn" onclick="toggleChatCollapse()" title="Nascondi Chat">‹ Nascondi</button>
+    </div>
+  </div>
+
+  <!-- BANNER DROPDOWN DEGLI UTENTI ONLINE NELLA CHAT -->
+  <div class="chat-online-dropdown" id="chatOnlineDropdown" style="display: none;" onclick="event.stopPropagation()">
+    <div class="chat-online-dropdown-header">
+      <div class="chat-online-dropdown-title">
+        <span>🟢</span>
+        <span>Account Online (<span id="chatOnlineDropdownCount">1</span>)</span>
+      </div>
+      <button type="button" class="chat-ctrl-btn" onclick="toggleChatOnlineUsersBanner(event, false)" title="Chiudi" style="padding: 2px 7px; font-size: 0.75rem; line-height: 1;">✕</button>
+    </div>
+    <div class="chat-online-users-list" id="chatOnlineUsersList">
+      <div style="text-align:center; padding:12px 6px; color:var(--muted); font-size:0.78rem;">Caricamento utenti online...</div>
     </div>
   </div>
 
@@ -4482,7 +4599,6 @@ function init() {
   initSupabase();
   initClassChat();
   requestPersistentStorage();
-  checkUrlForSyncData();
   sanitizeHistoryAndStats();
   initTheme();
   initAds();
@@ -5888,11 +6004,27 @@ function appendChatMessageToUI(msg, scroll = true) {
   }
 }
 
+var currentOnlineUsersCache = [];
+
 function setupChatRealtimeSubscription() {
   if (!sbClient || !currentUser || chatChannel) return;
 
   try {
-    chatChannel = sbClient.channel('public:chat_messages')
+    const presenceKey = currentUser.id;
+    chatChannel = sbClient.channel('public:chat_messages', {
+      config: {
+        presence: { key: presenceKey }
+      }
+    })
+      .on('presence', { event: 'sync' }, () => {
+        handlePresenceSync();
+      })
+      .on('presence', { event: 'join' }, () => {
+        handlePresenceSync();
+      })
+      .on('presence', { event: 'leave' }, () => {
+        handlePresenceSync();
+      })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
         if (payload && payload.new) {
           appendChatMessageToUI(payload.new, true);
@@ -5919,11 +6051,182 @@ function setupChatRealtimeSubscription() {
           container.innerHTML = '<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">Cronologia messaggi eliminata dall\'amministratore. 👋</div>';
         }
       })
-      .subscribe();
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await trackCurrentUserPresence();
+          handlePresenceSync();
+        }
+      });
   } catch (err) {
     console.warn('Errore sottoscrizione realtime chat:', err);
   }
 }
+
+async function trackCurrentUserPresence() {
+  if (!chatChannel || !currentUser) return;
+  const name = (currentProfile && currentProfile.full_name) || (currentUser.user_metadata?.full_name) || (currentUser.email ? currentUser.email.split('@')[0] : 'Corsista');
+  const email = currentUser.email || '';
+  const isDaniloAdmin = !!(email && email.toLowerCase() === 'giacobbe.danilo@gmail.com');
+  const role = isDaniloAdmin ? 'admin' : ((currentProfile && currentProfile.role) || 'student');
+  try {
+    await chatChannel.track({
+      user_id: currentUser.id,
+      full_name: name,
+      email: email,
+      role: role,
+      online_at: new Date().toISOString()
+    });
+  } catch (e) {
+    console.warn('[Realtime Presence] Errore track presenza:', e);
+  }
+}
+
+function handlePresenceSync() {
+  if (!chatChannel) {
+    if (currentUser) {
+      renderChatOnlineUsersUI([{
+        user_id: currentUser.id,
+        full_name: (currentProfile && currentProfile.full_name) || (currentUser.email ? currentUser.email.split('@')[0] : 'Tu'),
+        email: currentUser.email || '',
+        role: (currentProfile && currentProfile.role) || 'student',
+        isSelf: true
+      }]);
+    } else {
+      renderChatOnlineUsersUI([]);
+    }
+    return;
+  }
+
+  let state = {};
+  try {
+    state = chatChannel.presenceState() || {};
+  } catch (e) {
+    state = {};
+  }
+
+  const usersMap = new Map();
+
+  for (const key in state) {
+    const presences = state[key];
+    if (Array.isArray(presences) && presences.length > 0) {
+      const p = presences[presences.length - 1];
+      const uid = p.user_id || key;
+      usersMap.set(uid, p);
+    }
+  }
+
+  if (currentUser) {
+    const myName = (currentProfile && currentProfile.full_name) || (currentUser.email ? currentUser.email.split('@')[0] : 'Tu');
+    const isDaniloAdmin = !!(currentUser.email && currentUser.email.toLowerCase() === 'giacobbe.danilo@gmail.com');
+    const myRole = isDaniloAdmin ? 'admin' : ((currentProfile && currentProfile.role) || 'student');
+    usersMap.set(currentUser.id, {
+      user_id: currentUser.id,
+      full_name: myName,
+      email: currentUser.email || '',
+      role: myRole,
+      isSelf: true
+    });
+  }
+
+  const list = Array.from(usersMap.values());
+  list.sort((a, b) => {
+    if (a.user_id === currentUser?.id) return -1;
+    if (b.user_id === currentUser?.id) return 1;
+    if (a.role === 'admin' && b.role !== 'admin') return -1;
+    if (b.role === 'admin' && a.role !== 'admin') return 1;
+    return (a.full_name || '').localeCompare(b.full_name || '');
+  });
+
+  currentOnlineUsersCache = list;
+  renderChatOnlineUsersUI(list);
+}
+
+function renderChatOnlineUsersUI(users) {
+  const count = users.length;
+  const badgeText = document.getElementById('chatOnlineCountText');
+  const modalCount = document.getElementById('chatOnlineDropdownCount');
+  const listContainer = document.getElementById('chatOnlineUsersList');
+
+  if (badgeText) {
+    if (!currentUser) {
+      badgeText.textContent = 'Non connesso';
+    } else {
+      badgeText.textContent = count === 1 ? '1 online' : (count + ' online');
+    }
+  }
+  if (modalCount) {
+    modalCount.textContent = count;
+  }
+
+  if (!listContainer) return;
+
+  if (count === 0) {
+    listContainer.innerHTML = '<div style="text-align: center; color: var(--muted); font-size: 0.78rem; padding: 12px 6px;">Nessun account online al momento.</div>';
+    return;
+  }
+
+  let html = '';
+  users.forEach(u => {
+    const isMe = currentUser && u.user_id === currentUser.id;
+    const displayName = escapeHtml(u.full_name || (u.email ? u.email.split('@')[0] : 'Corsista'));
+    const meTag = isMe ? ' <span style="font-size:0.68rem; color:var(--accent); font-weight:700;">(Tu)</span>' : '';
+    const isAdmin = u.role === 'admin' || (u.email && u.email.toLowerCase() === 'giacobbe.danilo@gmail.com');
+    const roleBadge = isAdmin ? '<span style="font-size:0.65rem; background:rgba(235,94,40,0.15); color:#eb5e28; padding:1px 5px; border-radius:6px; font-weight:750; margin-left:4px;">ADMIN</span>' : '';
+    const initial = (u.full_name || u.email || 'U').charAt(0).toUpperCase();
+
+    html += `
+      <div class="chat-online-user-item">
+        <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+          <div class="chat-online-avatar">${initial}</div>
+          <div style="min-width: 0;">
+            <div class="chat-online-user-name">${displayName}${meTag} ${roleBadge}</div>
+            ${u.email ? `<div class="chat-online-user-email">${escapeHtml(u.email)}</div>` : ''}
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
+          <span class="chat-online-dot"></span>
+        </div>
+      </div>
+    `;
+  });
+
+  listContainer.innerHTML = html;
+}
+
+function toggleChatOnlineUsersBanner(e, forceState) {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  const dropdown = document.getElementById('chatOnlineDropdown');
+  const btn = document.getElementById('chatOnlineBadgeBtn');
+  if (!dropdown) return;
+
+  const isVisible = dropdown.style.display !== 'none';
+  const nextState = typeof forceState === 'boolean' ? forceState : !isVisible;
+
+  dropdown.style.display = nextState ? 'block' : 'none';
+  if (btn) {
+    if (nextState) btn.classList.add('open');
+    else btn.classList.remove('open');
+  }
+
+  if (nextState) {
+    handlePresenceSync();
+  }
+}
+
+// Chiusura automatica del banner degli utenti online se si clicca fuori
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('chatOnlineDropdown');
+  const btn = document.getElementById('chatOnlineBadgeBtn');
+  if (dropdown && dropdown.style.display !== 'none') {
+    if (!dropdown.contains(e.target) && (!btn || !btn.contains(e.target))) {
+      dropdown.style.display = 'none';
+      if (btn) btn.classList.remove('open');
+    }
+  }
+});
 
 async function confirmClearClassChat() {
   const isDaniloAdmin = !!(currentUser?.email && currentUser.email.toLowerCase() === 'giacobbe.danilo@gmail.com');
@@ -7047,6 +7350,9 @@ async function handleAuthUserChange(user) {
   if (typeof updateChatAuthUI === 'function') {
     updateChatAuthUI();
   }
+  if (typeof trackCurrentUserPresence === 'function') {
+    trackCurrentUserPresence();
+  }
 
   // Se ci sono quiz svolti come ospite prima di accedere, chiedi se collegarli al profilo (solo se non rifiutato in precedenza)
   const guestHist = getGuestHistory();
@@ -7311,6 +7617,20 @@ async function handleSupabaseLogout() {
     } catch (e) {}
     currentUser = null;
     currentProfile = null;
+    if (chatChannel && sbClient) {
+      try {
+        chatChannel.untrack();
+        sbClient.removeChannel(chatChannel);
+      } catch (e) {}
+      chatChannel = null;
+    }
+    currentOnlineUsersCache = [];
+    if (typeof renderChatOnlineUsersUI === 'function') {
+      renderChatOnlineUsersUI([]);
+    }
+    if (typeof updateChatAuthUI === 'function') {
+      updateChatAuthUI();
+    }
     inMemoryHistory = [];
     inMemoryQuestionStats = {};
     updateDashboard();
@@ -7971,197 +8291,6 @@ function discardActiveQuiz() {
   }
 }
 
-// 4. Sincronizzazione QR Code & Link URL (Compressione ZLIB + Base64 URL-Safe)
-function generateSyncDataString() {
-  const history = getHistory();
-  const qStats = getQuestionStats();
-  const pData = getPersonalData();
-
-  const payload = {
-    h: history,
-    s: qStats,
-    p: pData,
-    v: 1,
-    t: Date.now()
-  };
-
-  const jsonStr = JSON.stringify(payload);
-  if (typeof pako !== 'undefined' && pako.deflate) {
-    const compressed = pako.deflate(jsonStr, { level: 9 });
-    let binary = '';
-    const bytes = new Uint8Array(compressed);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    const b64 = btoa(binary)
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
-    return 'z_' + b64;
-  } else {
-    return 'r_' + btoa(encodeURIComponent(jsonStr));
-  }
-}
-
-function restoreSyncDataString(code) {
-  try {
-    let jsonStr = '';
-    if (code.startsWith('z_')) {
-      const b64 = code.slice(2).replace(/-/g, '+').replace(/_/g, '/');
-      const binStr = atob(b64);
-      const bytes = new Uint8Array(binStr.length);
-      for (let i = 0; i < binStr.length; i++) {
-        bytes[i] = binStr.charCodeAt(i);
-      }
-      jsonStr = pako.inflate(bytes, { to: 'string' });
-    } else if (code.startsWith('r_')) {
-      jsonStr = decodeURIComponent(atob(code.slice(2)));
-    } else {
-      jsonStr = decodeURIComponent(atob(code));
-    }
-
-    const payload = JSON.parse(jsonStr);
-    if (!payload) return false;
-
-    if (payload.h && Array.isArray(payload.h)) {
-      inMemoryHistory = payload.h;
-      if (window.localStorage) {
-        localStorage.setItem('aves_quiz_history', JSON.stringify(payload.h));
-      }
-    }
-    if (payload.s && typeof payload.s === 'object') {
-      saveQuestionStats(payload.s);
-    }
-    if (payload.p && typeof payload.p === 'object') {
-      savePersonalData(payload.p);
-    }
-
-    sanitizeHistoryAndStats();
-    loadHistoryView();
-    updateDashboard();
-    updateAvailableCountBadge();
-    return true;
-  } catch (err) {
-    console.error('Errore ripristino dati di sincronizzazione:', err);
-    return false;
-  }
-}
-
-function getBaseWebUrl() {
-  let base = '';
-  try {
-    if (window.localStorage) {
-      base = localStorage.getItem('aves_sync_web_url') || '';
-    }
-  } catch (e) {}
-
-  if (!base) {
-    if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
-      base = window.location.origin + window.location.pathname;
-    } else {
-      base = 'https://daniloo1.github.io/quiz-ctp/';
-    }
-  }
-  return base;
-}
-
-function setBaseWebUrl(url) {
-  try {
-    if (window.localStorage) {
-      localStorage.setItem('aves_sync_web_url', url.trim());
-    }
-  } catch (e) {}
-  const modal = document.getElementById('syncModalOverlay');
-  if (modal && modal.classList.contains('active')) {
-    renderQrInModal();
-  }
-}
-
-function getSyncUrl() {
-  const syncCode = generateSyncDataString();
-  const baseUrl = getBaseWebUrl();
-  return `${baseUrl}#sync=${syncCode}`;
-}
-
-function renderQrInModal() {
-  const container = document.getElementById('syncQrCodeContainer');
-  const urlInput = document.getElementById('syncWebUrlInput');
-  if (!container) return;
-
-  const currentBase = getBaseWebUrl();
-  if (urlInput && !urlInput.value) {
-    urlInput.value = currentBase;
-  }
-
-  const url = getSyncUrl();
-  container.innerHTML = '';
-
-  try {
-    if (typeof qrcode !== 'undefined') {
-      const qr = qrcode(0, 'L');
-      qr.addData(url);
-      qr.make();
-      const imgTag = qr.createImgTag(5, 8);
-      container.innerHTML = imgTag;
-    } else {
-      container.innerHTML = '<p style="color:red;">Libreria QR non attiva</p>';
-    }
-  } catch (e) {
-    console.warn('QR generation error:', e);
-    try {
-      const qr = qrcode(0, 'L');
-      qr.addData(url);
-      qr.make();
-      container.innerHTML = qr.createSvgTag({ scalable: true, margin: 2 });
-    } catch (e2) {
-      container.innerHTML = '<p style="font-size:0.85rem;color:var(--muted);padding:10px;">I dati sono molto ricchi. Clicca <strong>Copia Link</strong> qui sotto e aprilo sul telefono per sincronizzare!</p>';
-    }
-  }
-}
-
-function openQrSyncModal() {
-  const modal = document.getElementById('syncModalOverlay');
-  if (!modal) return;
-  modal.classList.add('active');
-  renderQrInModal();
-}
-
-function closeQrSyncModal(e) {
-  if (e) e.stopPropagation();
-  const modal = document.getElementById('syncModalOverlay');
-  if (modal) modal.classList.remove('active');
-}
-
-function copySyncShareLink() {
-  const url = getSyncUrl();
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(url).then(() => {
-      alert('✓ Link di sincronizzazione copiato negli appunti!\n\nInvialo al tuo telefono (es. su WhatsApp/Telegram/Note) e aprilo per caricare all\'istante tutti i tuoi progressi.');
-    }).catch(() => {
-      prompt('Copia questo link di sincronizzazione e aprilo sul tuo telefono:', url);
-    });
-  } else {
-    prompt('Copia questo link di sincronizzazione e aprilo sul tuo telefono:', url);
-  }
-}
-
-function checkUrlForSyncData() {
-  try {
-    const hash = window.location.hash;
-    if (hash && hash.includes('sync=')) {
-      const syncCode = hash.split('sync=')[1];
-      if (syncCode) {
-        const ok = restoreSyncDataString(syncCode);
-        if (ok) {
-          history.replaceState(null, '', window.location.pathname + window.location.search);
-          alert('✓ Sincronizzazione Riuscita!\n\nTutti i tuoi progressi, errori e statistiche sono stati aggiornati su questo dispositivo!');
-        }
-      }
-    }
-  } catch (e) {}
-}
-
 // Avvio applicazione al caricamento del DOM
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
@@ -8289,7 +8418,7 @@ function formatWcTime(totalSec) {
   const h = Math.floor((totalSec % 86400) / 3600);
   const m = Math.floor((totalSec % 3600) / 60);
   const s = totalSec % 60;
-  return ;
+  return String(d).padStart(2, '0') + ':' + String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 }
 
 function enforceFullscreen() {
@@ -8695,34 +8824,6 @@ window.addEventListener('contextmenu', (e) => {
   </div>
 </div>
 
-<!-- MODALE QR CODE DI SINCRONIZZAZIONE -->
-<div class="sync-modal-overlay" id="syncModalOverlay" onclick="closeQrSyncModal(event)">
-  <div class="sync-modal-card" onclick="event.stopPropagation()">
-    <div class="sync-modal-header">
-      <div class="sync-modal-title">📱 Sincronizza su Telefono</div>
-      <button class="ad-close-btn" onclick="closeQrSyncModal()" style="position:static;">✕</button>
-    </div>
-    <div style="font-size: 0.86rem; color: var(--muted); margin-bottom: 8px;">
-      Inquadra questo QR Code con la fotocamera del tuo smartphone o tablet per trasferire all'istante tutti i progressi e le statistiche:
-    </div>
-    <div class="sync-qr-box" id="syncQrCodeContainer"></div>
-    <div class="sync-url-config" id="syncUrlConfigBox">
-      <label for="syncWebUrlInput">🌐 Indirizzo del tuo sito GitHub Pages:</label>
-      <input type="url" id="syncWebUrlInput" placeholder="https://daniloo1.github.io/quiz-ctp/" oninput="setBaseWebUrl(this.value)">
-    </div>
-    <div class="sync-code-area">
-      Se stai provando il file in locale sul Mac (file:///), inserisci qui sopra il tuo link di GitHub Pages per far sì che la fotocamera del telefono apra la pagina online con le tue statistiche! Quando il sito è aperto direttamente da GitHub Pages, il link viene rilevato automaticamente.
-    </div>
-    <div style="margin-top: 16px; display: flex; gap: 8px;">
-      <button class="btn-cta" onclick="copySyncShareLink()" style="flex: 1; font-size: 0.82rem;">
-        Copia Link 🔗
-      </button>
-      <button class="btn-secondary" onclick="closeQrSyncModal()" style="flex: 1; font-size: 0.82rem;">
-        Chiudi
-      </button>
-    </div>
-  </div>
-</div>
 
 
 <!-- MODALE ACCESSO / REGISTRAZIONE / PROFILO CORSISTA -->
@@ -8853,6 +8954,7 @@ window.addEventListener('contextmenu', (e) => {
         Annulla
       </button>
     </div>
+  </div>
 </div>
 
 <!-- CONTENITORE NOTIFICHE TOAST NON BLOCCANTI -->
