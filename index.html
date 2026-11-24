@@ -4274,10 +4274,10 @@ async function syncSessionToSupabase(sessionStats, qStats) {
     const { data: sData, error: sErr } = await sbClient.from('quiz_sessions').insert({
       user_id: currentUser.id,
       user_name: studentName,
-      score_pct: sessionStats.scorePct,
-      correct: sessionStats.correct,
-      total: sessionStats.total,
-      is_passed: sessionStats.isPassed,
+      score_pct: Number(sessionStats.scorePct || 0),
+      correct: Number(sessionStats.correct || 0),
+      total: Number(sessionStats.total || 0),
+      is_passed: (sessionStats.isPassed !== undefined && sessionStats.isPassed !== null) ? Boolean(sessionStats.isPassed) : (Number(sessionStats.scorePct || 0) >= 60),
       duration_sec: sessionStats.durationSec || 0,
       subject_stats: sessionStats.subjectStats || {}
     });
@@ -4359,11 +4359,11 @@ async function syncLocalHistoryToCloud() {
       const { error: insErr } = await sbClient.from('quiz_sessions').insert({
         user_id: currentUser.id,
         user_name: studentName,
-        score_pct: s.scorePct,
-        correct: s.correct,
-        total: s.total,
-        is_passed: s.isPassed,
-        duration_sec: s.durationSec || 0,
+        score_pct: (s.scorePct !== undefined && s.scorePct !== null) ? Number(s.scorePct) : (s.total > 0 ? Math.round(((s.correct || 0) / s.total) * 100) : 0),
+        correct: Number(s.correct || 0),
+        total: Number(s.total || 0),
+        is_passed: (s.isPassed !== undefined && s.isPassed !== null) ? Boolean(s.isPassed) : (((s.scorePct || 0) >= 60) || ((s.correct || 0) >= (s.total || 1) * 0.6)),
+        duration_sec: Number(s.durationSec || 0),
         subject_stats: s.subjectStats || {},
         created_at: s.date || new Date().toISOString()
       });
