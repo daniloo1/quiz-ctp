@@ -200,7 +200,12 @@ header.main-header {
   border-radius: 999px;
   padding: 3px;
   gap: 2px;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.nav-tabs::-webkit-scrollbar { display: none; }
 .nav-tab {
   border: 0;
   background: transparent;
@@ -3904,6 +3909,94 @@ if (document.readyState === 'loading') {
 
 // ==========================================================================
 
+
+// ==========================================================================
+// GESTIONE DIALOGHI E NOTIFICHE IN-APP (SOSTITUZIONE POPUP DI SISTEMA)
+// ==========================================================================
+let appDialogCallback = null;
+
+function showAppDialog({ title = "Notifica AVES", message = "", type = "info", confirmText = "OK", cancelText = null, onConfirm = null }) {
+  const overlay = document.getElementById("appDialogOverlay");
+  if (!overlay) return;
+
+  const titleEl = document.getElementById("appDialogTitle");
+  const msgEl = document.getElementById("appDialogMessage");
+  const iconEl = document.getElementById("appDialogIcon");
+  const confirmBtn = document.getElementById("appDialogConfirmBtn");
+  const cancelBtn = document.getElementById("appDialogCancelBtn");
+
+  appDialogCallback = onConfirm;
+
+  if (titleEl) titleEl.textContent = title;
+  if (msgEl) msgEl.textContent = message;
+
+  if (iconEl) {
+    if (type === "success" || message.includes("✓") || message.includes("successo") || message.includes("salvato")) {
+      iconEl.textContent = "☁️";
+      iconEl.style.color = "var(--ok)";
+    } else if (type === "error" || message.includes("⚠️") || message.includes("Errore") || message.includes("Impossibile")) {
+      iconEl.textContent = "⚠️";
+      iconEl.style.color = "var(--bad)";
+    } else if (type === "confirm" || cancelText) {
+      iconEl.textContent = "❓";
+      iconEl.style.color = "var(--warn)";
+    } else {
+      iconEl.textContent = "✈️";
+      iconEl.style.color = "var(--accent)";
+    }
+  }
+
+  if (confirmBtn) {
+    confirmBtn.textContent = confirmText;
+    confirmBtn.onclick = function() {
+      closeAppDialog();
+      if (typeof appDialogCallback === "function") appDialogCallback(true);
+    };
+  }
+
+  if (cancelBtn) {
+    if (cancelText) {
+      cancelBtn.style.display = "inline-block";
+      cancelBtn.textContent = cancelText;
+      cancelBtn.onclick = function() {
+        closeAppDialog();
+        if (typeof appDialogCallback === "function") appDialogCallback(false);
+      };
+    } else {
+      cancelBtn.style.display = "none";
+    }
+  }
+
+  overlay.classList.add("active");
+}
+
+function closeAppDialog(event) {
+  if (event && event.target && event.target.id !== "appDialogOverlay") {
+    return;
+  }
+  const overlay = document.getElementById("appDialogOverlay");
+  if (overlay) overlay.classList.remove("active");
+}
+
+// Sostituisce i popup nativi "alert" del browser con i modali in-app dell'applicazione
+window.alert = function(msg) {
+  let title = "Notifica AVES";
+  let type = "info";
+  const s = String(msg || "");
+  if (s.includes("✓") || s.includes("successo") || s.includes("salvato") || s.includes("aggiornati")) {
+    title = "Operazione Riuscita";
+    type = "success";
+  } else if (s.includes("⚠️") || s.includes("Errore") || s.includes("Impossibile") || s.includes("fallita")) {
+    title = "Attenzione";
+    type = "error";
+  } else if (s.includes("💡") || s.includes("Nota")) {
+    title = "Promemoria";
+    type = "info";
+  }
+  showAppDialog({ title, message: s, type });
+};
+
+
 // ==========================================================================
 // INTEGRAZIONE SUPABASE: AUTH, PROFILI E CRUSCOTTO AMMINISTRATORE (AVES)
 // ==========================================================================
@@ -5214,6 +5307,28 @@ function checkUrlForSyncData() {
 
     <div style="margin-top: 16px; text-align: right;">
       <button class="btn-secondary" onclick="closeAdminDetailModal()" style="padding: 6px 16px; font-size: 0.82rem;">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODALE NOTIFICHE E DIALOGHI IN-APP (NO POPUP BROWSER) -->
+<div class="sync-modal-overlay" id="appDialogOverlay" onclick="closeAppDialog(event)">
+  <div class="sync-modal-card" onclick="event.stopPropagation()" style="max-width: 440px; text-align: center; padding: 26px 22px;">
+    <div id="appDialogIcon" style="font-size: 2.5rem; margin-bottom: 12px; line-height: 1;">☁️</div>
+    <div class="sync-modal-title" id="appDialogTitle" style="font-size: 1.15rem; font-weight: 750; margin-bottom: 10px; color: var(--ink);">
+      Notifica AVES
+    </div>
+    <div id="appDialogMessage" style="font-size: 0.88rem; line-height: 1.55; color: var(--muted); margin-bottom: 22px; white-space: pre-line;">
+      Messaggio
+    </div>
+    <div style="display: flex; gap: 10px; justify-content: center;" id="appDialogActions">
+      <button class="btn-cta" id="appDialogConfirmBtn" onclick="closeAppDialog()" style="min-width: 120px; padding: 10px 24px; font-size: 0.88rem;">
+        OK
+      </button>
+      <button class="btn-secondary" id="appDialogCancelBtn" onclick="closeAppDialog()" style="display: none; min-width: 100px; padding: 10px 18px; font-size: 0.88rem;">
+        Annulla
+      </button>
     </div>
   </div>
 </div>
