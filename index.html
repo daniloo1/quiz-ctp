@@ -2223,6 +2223,123 @@ function updateDashboard() {
   renderPersonalItems();
 }
 
+
+// --- GESTIONE E IMPORTAZIONE QUIZ SVOLTI COME OSPITE (NON AUTENTICATO) ---
+function getGuestHistory() {
+  try {
+    const raw = localStorage.getItem('aves_guest_quiz_history') || localStorage.getItem('aves_quiz_history');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return [];
+}
+
+function getGuestQuestionStats() {
+  try {
+    const raw = localStorage.getItem('aves_guest_question_stats') || localStorage.getItem('aves_question_stats');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return {};
+}
+
+function checkGuestImportButtonVisibility() {
+  const btn = document.getElementById('btnImportGuestHistory');
+  const badge = document.getElementById('guestHistoryCountBadge');
+  if (!btn) return;
+  const guestHist = getGuestHistory();
+  if (guestHist.length > 0 && typeof currentUser !== 'undefined' && currentUser) {
+    btn.style.display = 'block';
+    if (badge) badge.textContent = guestHist.length;
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+async function importGuestDataToAccount() {
+  if (!currentUser || !sbClient) {
+    showAppDialog({ title: 'Attenzione', message: 'Devi essere connesso al tuo account per importare i quiz.', type: 'error' });
+    return;
+  }
+
+  const guestHist = getGuestHistory();
+  const guestStats = getGuestQuestionStats();
+
+  if (guestHist.length === 0 && Object.keys(guestStats).length === 0) {
+    showAppDialog({ title: 'Nessun Quiz da Importare', message: 'Non ci sono quiz svolti come ospite non ancora collegati su questo dispositivo.', type: 'info' });
+    return;
+  }
+
+  try {
+    const studentName = currentProfile?.full_name || currentUser.email.split('@')[0];
+    let importedCount = 0;
+
+    for (const s of guestHist) {
+      const isPassed = (s.isPassed !== undefined && s.isPassed !== null) 
+        ? Boolean(s.isPassed) 
+        : (((s.scorePct || 0) >= 60) || ((s.correct || 0) >= (s.total || 1) * 0.6));
+      
+      const { error: insErr } = await sbClient.from('quiz_sessions').insert({
+        user_id: currentUser.id,
+        user_name: studentName,
+        score_pct: (s.scorePct !== undefined && s.scorePct !== null) ? Number(s.scorePct) : (s.total > 0 ? Math.round(((s.correct || 0) / s.total) * 100) : 0),
+        correct: Number(s.correct || 0),
+        total: Number(s.total || 0),
+        is_passed: isPassed,
+        duration_sec: Number(s.durationSec || 0),
+        subject_stats: s.subjectStats || {},
+        created_at: s.date || new Date().toISOString()
+      });
+      if (!insErr) importedCount++;
+    }
+
+    const qRows = [];
+    Object.keys(guestStats).forEach(qid => {
+      const st = guestStats[qid];
+      if (st && st.answered > 0) {
+        qRows.push({
+          user_id: currentUser.id,
+          question_id: parseInt(qid, 10),
+          answered: st.answered,
+          correct: st.correct,
+          wrong: st.wrong,
+          last_result: st.lastResult,
+          updated_at: st.lastDate || new Date().toISOString()
+        });
+      }
+    });
+
+    if (qRows.length > 0) {
+      for (let i = 0; i < qRows.length; i += 50) {
+        const chunk = qRows.slice(i, i + 50);
+        await sbClient.from('user_question_stats').upsert(chunk);
+      }
+    }
+
+    // Pulisce lo storico ospite così non viene re-importato
+    try {
+      localStorage.removeItem('aves_guest_quiz_history');
+      localStorage.removeItem('aves_guest_question_stats');
+      localStorage.removeItem('aves_quiz_history');
+      localStorage.removeItem('aves_question_stats');
+    } catch (e) {}
+
+    // Ricarica le statistiche personali aggiornate
+    await loadUserDataFromCloud(currentUser.id);
+
+    showAppDialog({
+      title: 'Operazione Riuscita',
+      message: `☁️ Quiz e statistiche aggiornate con successo!
+
+(${importedCount} quiz svolti come ospite collegati al tuo profilo)`,
+      icon: '✅',
+      type: 'success'
+    });
+
+    checkGuestImportButtonVisibility();
+  } catch (err) {
+    showAppDialog({ title: 'Errore Importazione', message: err.message, type: 'error' });
+  }
+}
+
 // --- STORAGE SYSTEM ROBUSTO (Isolato per Singolo Utente / Profilo) ---
 function getStorageKey(baseName) {
   if (typeof currentUser !== 'undefined' && currentUser && currentUser.id) {
@@ -4209,6 +4326,25 @@ async function handleAuthUserChange(user) {
 
   // Carica immediatamente le statistiche e la cronologia personali di questo specifico utente
   await loadUserDataFromCloud(user.id);
+
+  // Se ci sono quiz svolti come ospite prima di accedere, chiedi se collegarli al profilo
+  const guestHist = getGuestHistory();
+  if (guestHist.length > 0) {
+    setTimeout(() => {
+      showAppDialog({
+        title: 'Quiz come Ospite Trovati',
+        message: 'Hai svolto ' + guestHist.length + ' quiz su questo dispositivo prima di accedere.\n\nVuoi collegarli e salvarli nel tuo nuovo account?',
+        icon: '📥',
+        confirmText: 'Sì, collega ora',
+        cancelText: 'No, ignora',
+        onConfirm: (yes) => {
+          if (yes) {
+            importGuestDataToAccount();
+          }
+        }
+      });
+    }, 600);
+  }
 }
 
 function showAdminTab(visible) {
@@ -4253,6 +4389,7 @@ function openAuthModal() {
   if (alertBox) alertBox.style.display = 'none';
 
   if (currentUser) {
+    checkGuestImportButtonVisibility();
     if (profileView) profileView.style.display = 'block';
     if (formView) formView.style.display = 'none';
 
@@ -5356,8 +5493,11 @@ function checkUrlForSyncData() {
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 8px;">
-        <button class="btn-cta" onclick="syncLocalHistoryToCloud()" style="font-size: 0.85rem; padding: 10px;">
-          ☁️ Carica Storico Precedente su Cloud
+        <button class="btn-cta" id="btnImportGuestHistory" onclick="importGuestDataToAccount()" style="font-size: 0.85rem; padding: 10px; display: none; background: #0f9d68;">
+          📥 Collega i Quiz svolti come Ospite a questo Account (<span id="guestHistoryCountBadge">0</span>)
+        </button>
+        <button class="btn-secondary" onclick="syncLocalHistoryToCloud()" style="font-size: 0.82rem; padding: 8px;">
+          ☁️ Ricarica Storico su Cloud
         </button>
         <button class="btn-reset-danger" onclick="handleSupabaseLogout()" style="font-size: 0.82rem; padding: 8px; width: 100%; margin-top: 4px;">
           🚪 Disconnetti Account
