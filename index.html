@@ -3976,9 +3976,14 @@ async function handleAuthUserChange(user) {
   try {
     if (sbClient) {
       const { data, error } = await sbClient.from('profiles').select('*').eq('id', user.id).maybeSingle();
+      if (error) {
+        console.error('[AVES] Errore lettura profilo da Supabase:', error);
+      }
       if (data) {
         currentProfile = data;
-      } else {
+        console.log('[AVES] Profilo caricato da Supabase:', currentProfile);
+      } else if (!error) {
+        // Nessun profilo trovato e nessun errore di query: crea profilo iniziale
         const fallbackName = user.user_metadata?.full_name || user.email.split('@')[0];
         const newProf = {
           id: user.id,
@@ -3995,6 +4000,7 @@ async function handleAuthUserChange(user) {
   }
 
   const isAdmin = !!(currentProfile && currentProfile.role === 'admin');
+  console.log('[AVES] Stato utente:', { email: currentUser?.email, role: currentProfile?.role, isAdmin });
   showAdminTab(isAdmin);
   updateAuthUI();
 }
@@ -4327,10 +4333,18 @@ async function syncLocalHistoryToCloud() {
   try {
     const studentName = currentProfile?.full_name || currentUser.email.split('@')[0];
     
+    // Assicura prima che il profilo esista
+    await sbClient.from('profiles').upsert({
+      id: currentUser.id,
+      email: currentUser.email,
+      full_name: studentName,
+      role: currentProfile?.role || 'student'
+    });
+
     // 1. Carica le sessioni passate
     let uploadedSessions = 0;
     for (const s of hist) {
-      await sbClient.from('quiz_sessions').insert({
+      const { error: insErr } = await sbClient.from('quiz_sessions').insert({
         user_id: currentUser.id,
         user_name: studentName,
         score_pct: s.scorePct,
@@ -4341,6 +4355,10 @@ async function syncLocalHistoryToCloud() {
         subject_stats: s.subjectStats || {},
         created_at: s.date || new Date().toISOString()
       });
+      if (insErr) {
+        console.error('[AVES] Errore inserimento sessione:', insErr);
+        throw new Error('Impossibile inserire sessione in quiz_sessions: ' + insErr.message + ' (' + (insErr.details || insErr.hint || insErr.code) + ')');
+      }
       uploadedSessions++;
     }
 
@@ -4362,10 +4380,13 @@ async function syncLocalHistoryToCloud() {
     });
 
     if (qRows.length > 0) {
-      // Upsert in chunks di 50
       for (let i = 0; i < qRows.length; i += 50) {
         const chunk = qRows.slice(i, i + 50);
-        await sbClient.from('user_question_stats').upsert(chunk);
+        const { error: qErr } = await sbClient.from('user_question_stats').upsert(chunk);
+        if (qErr) {
+          console.error('[AVES] Errore salvataggio statistiche domande:', qErr);
+          throw new Error('Impossibile salvare statistiche domande in user_question_stats: ' + qErr.message);
+        }
       }
     }
 
