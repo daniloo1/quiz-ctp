@@ -184,12 +184,12 @@
     "materia": "POTERE AEREO",
     "domanda": "Quali e quanti sono i principi della guerra?",
     "opzioni": [
-      "Sono 10: unicità di comando, obiettivo, offensiva, morale, massa, manovra, economia delle forze, sicurezza, sorpresa e semplicità",
+      "Sono 10: unicità di comando, obiettivo, mentalità offensiva, morale, massa, manovra, economia delle forze, sicurezza, sorpresa e semplicità",
       "Sono 9: unicità di comando, obiettivo, mentalità offensiva, morale, massa, manovra, economia delle forze, sicurezza e semplicità",
       "Sono 9: unicità di comando, obiettivo, manovra, morale, massa, economia delle forze, sicurezza, sorpresa e semplicità",
       "Sono 10: unicità di comando, obiettivo, imboscata, mentalità offensiva, morale, massa, manovra, economia delle forze, sicurezza e semplicità"
     ],
-    "corretta": "Sono 10: unicità di comando, obiettivo, offensiva, morale, massa, manovra, economia delle forze, sicurezza, sorpresa e semplicità"
+    "corretta": "Sono 10: unicità di comando, obiettivo, mentalità offensiva, morale, massa, manovra, economia delle forze, sicurezza, sorpresa e semplicità"
   },
   {
     "id": 17,
@@ -610,6 +610,18 @@
       "Vero, ma solo se le missioni vengono condotte a quote inferiori a 500 ft AGL"
     ],
     "corretta": "Vero, il coordinamento tattico in tempo reale garantisce la separazione e la precedenza operativa"
+  },
+  {
+    "id": 282,
+    "materia": "POTERE AEREO",
+    "domanda": "Quali sono le due macro aree delle operazioni di controaviazione (Counter Air / Co.A.)?",
+    "opzioni": [
+      "Offensive Counter Air (OCA) e Defensive Counter Air (DCA)",
+      "Strategic Attack e Counter Surface Force Operations (CSFO)",
+      "Active Air Defence e Passive Air Defence",
+      "Air Transport e Air-to-Air Refuelling"
+    ],
+    "corretta": "Offensive Counter Air (OCA) e Defensive Counter Air (DCA)"
   },
   {
     "id": 52,
