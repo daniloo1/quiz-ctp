@@ -2223,32 +2223,39 @@ function updateDashboard() {
   renderPersonalItems();
 }
 
-// --- STORAGE SYSTEM ROBUSTO (Safe Fallback) ---
+// --- STORAGE SYSTEM ROBUSTO (Isolato per Singolo Utente / Profilo) ---
+function getStorageKey(baseName) {
+  if (typeof currentUser !== 'undefined' && currentUser && currentUser.id) {
+    return 'aves_' + currentUser.id + '_' + baseName;
+  }
+  return 'aves_guest_' + baseName;
+}
+
 function getHistory() {
   try {
     if (window.localStorage) {
-      const data = localStorage.getItem('aves_quiz_history');
+      const data = localStorage.getItem(getStorageKey('quiz_history')) || (!currentUser ? localStorage.getItem('aves_quiz_history') : null);
       if (data) return JSON.parse(data);
     }
   } catch (e) {}
-  return inMemoryHistory;
+  return inMemoryHistory || [];
 }
 
 function getQuestionStats() {
   try {
     if (window.localStorage) {
-      const data = localStorage.getItem('aves_question_stats');
+      const data = localStorage.getItem(getStorageKey('question_stats')) || (!currentUser ? localStorage.getItem('aves_question_stats') : null);
       if (data) return JSON.parse(data);
     }
   } catch (e) {}
-  return inMemoryQuestionStats;
+  return inMemoryQuestionStats || {};
 }
 
 function saveQuestionStats(stats) {
   inMemoryQuestionStats = stats;
   try {
     if (window.localStorage) {
-      localStorage.setItem('aves_question_stats', JSON.stringify(stats));
+      localStorage.setItem(getStorageKey('question_stats'), JSON.stringify(stats));
     }
   } catch (e) {}
 }
@@ -2260,31 +2267,33 @@ function saveSessionToHistory(session) {
     total: session.total,
     correct: session.correct,
     scorePct: session.scorePct,
+    isPassed: session.isPassed,
+    durationSec: session.durationSec,
     subjectStats: session.subjectStats
   };
   history.push(record);
   inMemoryHistory = history;
   try {
     if (window.localStorage) {
-      localStorage.setItem('aves_quiz_history', JSON.stringify(history));
+      localStorage.setItem(getStorageKey('quiz_history'), JSON.stringify(history));
     }
   } catch (e) {}
 }
 
 function confirmResetStats() {
-  if (confirm('Sei sicuro di voler azzerare TUTTO lo storico delle simulazioni e le statistiche domanda per domanda? Questa azione è irreversibile.')) {
+  if (confirm('Sei sicuro di voler azzerare lo storico delle simulazioni e le statistiche di questo profilo? Questa azione non può essere annullata.')) {
     inMemoryHistory = [];
     inMemoryQuestionStats = {};
     try {
       if (window.localStorage) {
-        localStorage.removeItem('aves_quiz_history');
-        localStorage.removeItem('aves_question_stats');
+        localStorage.removeItem(getStorageKey('quiz_history'));
+        localStorage.removeItem(getStorageKey('question_stats'));
       }
     } catch (e) {}
     loadHistoryView();
     loadAdvancedStatsView();
     updateAvailableCountBadge();
-    alert('Statistiche azzerate con successo!');
+    alert('Statistiche del profilo azzerate con successo!');
   }
 }
 
@@ -4090,6 +4099,76 @@ function initSupabase() {
 
 
 
+
+async function loadUserDataFromCloud(userId) {
+  if (!sbClient || !userId) return;
+
+  try {
+    // 1. Recupera le sessioni personali di questo utente da Supabase
+    const { data: sessions, error: sErr } = await sbClient
+      .from('quiz_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true });
+
+    if (sessions && Array.isArray(sessions)) {
+      inMemoryHistory = sessions.map(s => ({
+        date: s.created_at,
+        total: s.total,
+        correct: s.correct,
+        scorePct: s.score_pct,
+        isPassed: s.is_passed,
+        durationSec: s.duration_sec || 0,
+        subjectStats: s.subject_stats || {}
+      }));
+      if (window.localStorage) {
+        localStorage.setItem(getStorageKey('quiz_history'), JSON.stringify(inMemoryHistory));
+      }
+    } else {
+      inMemoryHistory = [];
+      if (window.localStorage) {
+        localStorage.removeItem(getStorageKey('quiz_history'));
+      }
+    }
+
+    // 2. Recupera le statistiche per domanda personali di questo utente da Supabase
+    const { data: qStatsList, error: qErr } = await sbClient
+      .from('user_question_stats')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (qStatsList && Array.isArray(qStatsList) && qStatsList.length > 0) {
+      const statsObj = {};
+      qStatsList.forEach(item => {
+        statsObj[item.question_id] = {
+          answered: item.answered,
+          correct: item.correct,
+          wrong: item.wrong,
+          lastResult: item.last_result,
+          lastDate: item.updated_at
+        };
+      });
+      inMemoryQuestionStats = statsObj;
+      if (window.localStorage) {
+        localStorage.setItem(getStorageKey('question_stats'), JSON.stringify(statsObj));
+      }
+    } else {
+      inMemoryQuestionStats = {};
+      if (window.localStorage) {
+        localStorage.removeItem(getStorageKey('question_stats'));
+      }
+    }
+
+    // Rinfresca tutte le viste del simulatore con i dati di QUESTO specifico profilo
+    updateDashboard();
+    loadHistoryView();
+    loadAdvancedStatsView();
+    updateAvailableCountBadge();
+  } catch (err) {
+    console.error('[AVES Cloud] Errore caricamento profilo da Supabase:', err);
+  }
+}
+
 async function handleAuthUserChange(user) {
   if (!user) return;
   currentUser = user;
@@ -4127,6 +4206,9 @@ async function handleAuthUserChange(user) {
   console.log('[AVES] Stato utente:', { email: currentUser?.email, role: currentProfile?.role, isAdmin });
   showAdminTab(isAdmin);
   updateAuthUI();
+
+  // Carica immediatamente le statistiche e la cronologia personali di questo specifico utente
+  await loadUserDataFromCloud(user.id);
 }
 
 function showAdminTab(visible) {
@@ -4359,6 +4441,12 @@ async function handleSupabaseLogout() {
     } catch (e) {}
     currentUser = null;
     currentProfile = null;
+    inMemoryHistory = [];
+    inMemoryQuestionStats = {};
+    updateDashboard();
+    loadHistoryView();
+    loadAdvancedStatsView();
+    updateAvailableCountBadge();
     showAdminTab(false);
     updateAuthUI();
     closeAuthModal();
