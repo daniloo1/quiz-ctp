@@ -4022,6 +4022,10 @@ function getStorageKey(baseName) {
   if (typeof currentUser !== 'undefined' && currentUser && currentUser.id) {
     return 'aves_' + currentUser.id + '_' + baseName;
   }
+  const lastUid = (typeof window !== 'undefined' && window.localStorage && localStorage.getItem('aves_last_user_id')) || '';
+  if (lastUid) {
+    return 'aves_' + lastUid + '_' + baseName;
+  }
   return 'aves_guest_' + baseName;
 }
 
@@ -4576,26 +4580,6 @@ function pickOptionByIndex(idx) {
 
 // --- INIZIALIZZAZIONE ---
 function init() {
-  // Reset statistiche di lancio (garantisce partenza pulita a zero da prove e test pre-lancio)
-  try {
-    const LAUNCH_KEY = 'aves_launch_v1_clean';
-    if (!localStorage.getItem(LAUNCH_KEY)) {
-      localStorage.removeItem('aves_quiz_history');
-      localStorage.removeItem('aves_question_stats');
-      localStorage.removeItem('aves_guest_quiz_history');
-      localStorage.removeItem('aves_guest_question_stats');
-      localStorage.removeItem('aves_active_quiz_session');
-      Object.keys(localStorage).forEach(k => {
-        if (k.startsWith('aves_') && (k.endsWith('_quiz_history') || k.endsWith('_question_stats') || k.endsWith('_active_quiz_session'))) {
-          localStorage.removeItem(k);
-        }
-      });
-      inMemoryHistory = [];
-      inMemoryQuestionStats = {};
-      localStorage.setItem(LAUNCH_KEY, 'true');
-    }
-  } catch (e) {}
-
   initSupabase();
   initClassChat();
   requestPersistentStorage();
@@ -7242,21 +7226,16 @@ async function loadUserDataFromCloud(userId) {
       .select('*')
       .eq('user_id', userId);
 
-    let sessions = rawSessions || [];
-    let qStatsList = rawQStatsList || [];
+    if (sErr) {
+      console.warn('[AVES Cloud] Avviso recupero sessioni quiz:', sErr);
+    }
+    if (qErr) {
+      console.warn('[AVES Cloud] Avviso recupero question stats:', qErr);
+    }
 
-    // Se l'utente ha eseguito 'Azzera Tutto', filtra via qualsiasi record antecedente al reset
-    try {
-      const resetCutoffStr = localStorage.getItem('aves_stats_reset_at_' + userId);
-      if (resetCutoffStr) {
-        const resetCutoff = new Date(resetCutoffStr).getTime();
-        sessions = sessions.filter(s => new Date(s.created_at).getTime() > resetCutoff);
-        qStatsList = qStatsList.filter(s => new Date(s.updated_at || s.created_at).getTime() > resetCutoff);
-      }
-    } catch (e) {}
-
-    if (sessions && Array.isArray(sessions) && sessions.length > 0) {
-      inMemoryHistory = sessions.map(s => ({
+    // Se non c'è errore su rawSessions, sincronizza la cronologia
+    if (!sErr && rawSessions && Array.isArray(rawSessions)) {
+      const cloudHistory = rawSessions.map(s => ({
         date: s.created_at,
         total: s.total,
         correct: s.correct,
@@ -7265,35 +7244,56 @@ async function loadUserDataFromCloud(userId) {
         durationSec: s.duration_sec || 0,
         subjectStats: s.subject_stats || {}
       }));
-      if (window.localStorage) {
-        localStorage.setItem(getStorageKey('quiz_history'), JSON.stringify(inMemoryHistory));
-      }
-    } else {
-      inMemoryHistory = [];
-      if (window.localStorage) {
-        localStorage.removeItem(getStorageKey('quiz_history'));
+
+      let localHist = [];
+      try {
+        const localData = (typeof window !== 'undefined' && window.localStorage) ? localStorage.getItem(getStorageKey('quiz_history')) : null;
+        if (localData) localHist = JSON.parse(localData) || [];
+      } catch (e) {}
+
+      if (cloudHistory.length > 0) {
+        if (localHist.length > 0) {
+          // Unione: mantieni i record cloud ed eventuali sessioni locali non ancora su cloud
+          const cloudDates = new Set(cloudHistory.map(s => s.date));
+          const unsynced = localHist.filter(lh => lh.date && !cloudDates.has(lh.date));
+          inMemoryHistory = [...cloudHistory, ...unsynced].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        } else {
+          inMemoryHistory = cloudHistory;
+        }
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem(getStorageKey('quiz_history'), JSON.stringify(inMemoryHistory));
+        }
+      } else if (localHist.length > 0) {
+        // Se il cloud non ha ancora sessioni ma il browser locale sì, mantieni quelle locali
+        inMemoryHistory = localHist;
       }
     }
 
-    if (qStatsList && Array.isArray(qStatsList) && qStatsList.length > 0) {
-      const statsObj = {};
-      qStatsList.forEach(item => {
-        statsObj[item.question_id] = {
-          answered: item.answered,
-          correct: item.correct,
-          wrong: item.wrong,
-          lastResult: item.last_result,
-          lastDate: item.updated_at
-        };
-      });
-      inMemoryQuestionStats = statsObj;
-      if (window.localStorage) {
-        localStorage.setItem(getStorageKey('question_stats'), JSON.stringify(statsObj));
-      }
-    } else {
-      inMemoryQuestionStats = {};
-      if (window.localStorage) {
-        localStorage.removeItem(getStorageKey('question_stats'));
+    // Sincronizza statistiche per singola domanda
+    if (!qErr && rawQStatsList && Array.isArray(rawQStatsList)) {
+      let localQStats = {};
+      try {
+        const lq = (typeof window !== 'undefined' && window.localStorage) ? localStorage.getItem(getStorageKey('question_stats')) : null;
+        if (lq) localQStats = JSON.parse(lq) || {};
+      } catch (e) {}
+
+      if (rawQStatsList.length > 0) {
+        const statsObj = { ...localQStats };
+        rawQStatsList.forEach(item => {
+          statsObj[item.question_id] = {
+            answered: item.answered,
+            correct: item.correct,
+            wrong: item.wrong,
+            lastResult: item.last_result,
+            lastDate: item.updated_at
+          };
+        });
+        inMemoryQuestionStats = statsObj;
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem(getStorageKey('question_stats'), JSON.stringify(statsObj));
+        }
+      } else if (Object.keys(localQStats).length > 0) {
+        inMemoryQuestionStats = localQStats;
       }
     }
 
@@ -7310,6 +7310,9 @@ async function loadUserDataFromCloud(userId) {
 async function handleAuthUserChange(user) {
   if (!user) return;
   currentUser = user;
+  if (user.id && typeof window !== 'undefined' && window.localStorage) {
+    localStorage.setItem('aves_last_user_id', user.id);
+  }
   try {
     if (sbClient) {
       let { data, error } = await sbClient.from('profiles').select('*').eq('id', user.id).maybeSingle();
@@ -7617,6 +7620,9 @@ async function handleSupabaseLogout() {
     } catch (e) {}
     currentUser = null;
     currentProfile = null;
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('aves_last_user_id');
+    }
     if (chatChannel && sbClient) {
       try {
         chatChannel.untrack();
@@ -7667,6 +7673,11 @@ async function syncSessionToSupabase(sessionStats, qStats) {
       });
     } catch (e) {}
 
+    // Rimuove eventuali cutoff di reset per questo utente ora che ha una nuova sessione
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('aves_stats_reset_at_' + currentUser.id);
+    }
+
     // Inserisce la sessione
     const { data: sData, error: sErr } = await sbClient.from('quiz_sessions').insert({
       user_id: currentUser.id,
@@ -7676,7 +7687,8 @@ async function syncSessionToSupabase(sessionStats, qStats) {
       total: Number(sessionStats.total || 0),
       is_passed: (sessionStats.isPassed !== undefined && sessionStats.isPassed !== null) ? Boolean(sessionStats.isPassed) : (Number(sessionStats.scorePct || 0) >= 60),
       duration_sec: sessionStats.durationSec || 0,
-      subject_stats: sessionStats.subjectStats || {}
+      subject_stats: sessionStats.subjectStats || {},
+      created_at: sessionStats.date || new Date().toISOString()
     });
 
     if (sErr) {
