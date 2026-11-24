@@ -4477,17 +4477,22 @@ function updateChatAuthUI() {
   const container = document.getElementById('chatMessagesContainer');
   const chatForm = document.getElementById('chatForm');
   const noticeEl = document.getElementById('chatAuthBarNotice');
+  const inputEl = document.getElementById('chatInputMessage');
+  const btnEl = document.getElementById('chatSendBtn');
 
   if (currentUser) {
-    // Utente autenticato
+    // Utente autenticato: sblocca form, input e messaggi
     if (noticeEl) noticeEl.style.display = 'none';
     if (chatForm) chatForm.style.display = 'flex';
+    if (inputEl) {
+      inputEl.disabled = false;
+      inputEl.placeholder = 'Scrivi un messaggio alla classe...';
+    }
+    if (btnEl) btnEl.disabled = false;
 
-    // Rimuove la schermata di blocco se presente
-    if (container && container.querySelector('.chat-unauth-container')) {
+    // Se nel container c'è la schermata di blocco o è vuoto/loading, ricarica i messaggi
+    if (container && (container.querySelector('.chat-unauth-container') || container.querySelector('#chatLoadingState') || !container.children.length)) {
       container.innerHTML = '<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;" id="chatLoadingState">Caricamento messaggi...</div>';
-      loadRecentChatMessages();
-    } else if (container && !container.children.length) {
       loadRecentChatMessages();
     }
 
@@ -4495,9 +4500,14 @@ function updateChatAuthUI() {
       setupChatRealtimeSubscription();
     }
   } else {
-    // Utente NON autenticato: mostra schermata con avviso e pulsante centrale per il login
+    // Utente NON autenticato: mostra schermata di blocco con pulsante
     if (noticeEl) noticeEl.style.display = 'block';
     if (chatForm) chatForm.style.display = 'none';
+    if (inputEl) {
+      inputEl.disabled = true;
+      inputEl.placeholder = 'Accedi per poter scrivere...';
+    }
+    if (btnEl) btnEl.disabled = true;
 
     if (container) {
       container.innerHTML = `
@@ -4515,7 +4525,7 @@ function updateChatAuthUI() {
     }
 
     if (chatChannel && sbClient) {
-      sbClient.removeChannel(chatChannel);
+      try { sbClient.removeChannel(chatChannel); } catch (e) {}
       chatChannel = null;
     }
   }
@@ -4548,6 +4558,9 @@ function toggleChatCollapse() {
 async function loadRecentChatMessages() {
   if (!sbClient || !currentUser) return;
 
+  const container = document.getElementById('chatMessagesContainer');
+  if (!container) return;
+
   try {
     const { data: messages, error } = await sbClient
       .from('chat_messages')
@@ -4555,12 +4568,14 @@ async function loadRecentChatMessages() {
       .order('created_at', { ascending: true })
       .limit(80);
 
-    const container = document.getElementById('chatMessagesContainer');
-    if (!container) return;
-
     if (error) {
       console.warn('Errore lettura chat_messages:', error);
-      container.innerHTML = `<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">Crea la tabella chat_messages su Supabase per abilitare i messaggi.</div>`;
+      container.innerHTML = `
+        <div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">
+          💬 Chat attiva.<br>
+          <span style="font-size:0.74rem;">Se è la prima volta, esegui lo script SQL su Supabase per abilitare la tabella chat_messages.</span>
+        </div>
+      `;
       return;
     }
 
@@ -4577,6 +4592,9 @@ async function loadRecentChatMessages() {
     container.scrollTop = container.scrollHeight;
   } catch (err) {
     console.error('Errore caricamento messaggi chat:', err);
+    if (container) {
+      container.innerHTML = `<div style="text-align:center; padding:18px; color:var(--muted); font-size:0.8rem;">Errore di connessione alla chat.</div>`;
+    }
   }
 }
 
@@ -4601,8 +4619,16 @@ function appendChatMessageToUI(msg, scroll = true) {
   const container = document.getElementById('chatMessagesContainer');
   if (!container || !currentUser) return;
 
-  // Se c'era il placeholder o la schermata unauth, rimuovilo
-  if (container.querySelector('#chatLoadingState') || (container.children.length === 1 && container.children[0].textContent.includes('Nessun messaggio'))) {
+  // Deduplicazione: evita di ri-aggiungere lo stesso messaggio
+  if (msg.id && document.getElementById('chatMsg_' + msg.id)) {
+    return;
+  }
+
+  // Se c'era un placeholder o la schermata unauth, rimuovilo
+  if (container.querySelector('#chatLoadingState') || 
+      container.querySelector('.chat-unauth-container') ||
+      (container.children.length === 1 && container.children[0].textContent.includes('Nessun messaggio')) ||
+      (container.children.length === 1 && container.children[0].textContent.includes('Chat attiva'))) {
     container.innerHTML = '';
   }
 
@@ -4610,6 +4636,7 @@ function appendChatMessageToUI(msg, scroll = true) {
   const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '';
 
   const bubble = document.createElement('div');
+  if (msg.id) bubble.id = 'chatMsg_' + msg.id;
   const isReport = msg.is_report || (msg.message && msg.message.startsWith('⚠️ Segnalazione'));
   bubble.className = `telegram-bubble ${isMine ? 'mine' : 'other'} ${isReport ? 'report-bubble' : ''}`;
 
@@ -4681,19 +4708,22 @@ async function handleSendChatMessage(event) {
     const myHistory = (typeof getHistory === 'function') ? getHistory() : [];
     const myQuizCount = myHistory.length;
 
-    const { error } = await sbClient.from('chat_messages').insert({
+    const { data, error } = await sbClient.from('chat_messages').insert({
       user_id: currentUser.id,
       user_name: authorName,
       user_role: authorRole,
       quiz_count: myQuizCount,
       message: text
-    });
+    }).select();
 
     if (error) {
       console.error('Errore invio messaggio:', error);
       showAppDialog({ title: 'Errore Chat', message: 'Impossibile inviare il messaggio: ' + error.message, type: 'error' });
     } else {
       if (input) input.value = '';
+      if (data && data[0]) {
+        appendChatMessageToUI(data[0], true);
+      }
     }
   } catch (err) {
     showAppDialog({ title: 'Errore', message: err.message, type: 'error' });
@@ -5194,6 +5224,9 @@ async function handleAuthUserChange(user) {
 
   // Carica immediatamente le statistiche e la cronologia personali di questo specifico utente
   await loadUserDataFromCloud(user.id);
+  if (typeof updateChatAuthUI === 'function') {
+    updateChatAuthUI();
+  }
 
   // Se ci sono quiz svolti come ospite prima di accedere, chiedi se collegarli al profilo
   const guestHist = getGuestHistory();
@@ -5243,6 +5276,11 @@ function updateAuthUI() {
     if (icon) icon.textContent = '👤';
     btn.title = 'Accedi o registrati per salvare i tuoi progressi sul cloud';
     btn.style.background = 'var(--accent)';
+  }
+
+  // Sincronizza sempre lo stato della Chat con l'autenticazione
+  if (typeof updateChatAuthUI === 'function') {
+    updateChatAuthUI();
   }
 }
 
