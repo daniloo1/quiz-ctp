@@ -28,12 +28,12 @@
     "materia": "PROCEDURE DEL VOLO",
     "domanda": "Secondo la normativa ICAO (PANS-OPS Doc 8168) per le procedure strumentali, quali sono le categorie di aeromobili previste in base alla Vat?",
     "opzioni": [
-      "Categorie A, B, C, D, E, H ed Helicopter PinS",
+      "Categorie A, B, C, D, E, H e HPMA",
       "Categorie Light, Medium, Heavy, Super-Heavy e Rotorcraft",
       "Categorie I, II, III-A, III-B, III-C e Militare Speciale",
       "Categorie VFR, IFR, SVFR, OAT Tattico e Operazioni Speciali"
     ],
-    "corretta": "Categorie A, B, C, D, E, H ed Helicopter PinS"
+    "corretta": "Categorie A, B, C, D, E, H e HPMA"
   },
   {
     "id": 4,
@@ -1262,12 +1262,12 @@
     "materia": "NAVIGAZIONE",
     "domanda": "I principali requisiti costruttivi ed operativi di una bussola magnetica sono:",
     "opzioni": [
-      "Sensibilità, tranquillità e sensibilità statica",
-      "Sensibilità, tranquillità e sensibilità dinamica",
-      "Sensibilità, tranquillità",
-      "Sensibilità statica, precessione e compensazione di deriva"
+      "Sensibilità, tranquillità e stabilità statica",
+      "Sensibilità, tranquillità e stabilità dinamica",
+      "Sensibilità, tranquillità, Stabilità",
+      "Stabilità statica, precessione e compensazione di deriva"
     ],
-    "corretta": "Sensibilità, tranquillità e sensibilità statica"
+    "corretta": "Sensibilità, tranquillità e stabilità statica"
   },
   {
     "id": 106,
